@@ -149,7 +149,7 @@ class UNetModel(BaseModel):
         start_idx = 0
         for i in range(len(generator.outputs)):
             current_out = out[:, :, :, start_idx:start_idx+generator.out_dims[i][1]]
-            if (generator.output_types[i] == np.bool):
+            if (generator.output_types[i] == np.bool_):
                 out = Activation('sigmoid')(out)
             elif (generator.output_types[i] == "znorm"):
                 out = Activation(UNetModel.znorm)(out)
