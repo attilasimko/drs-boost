@@ -57,7 +57,8 @@ class DataGenerator(tensorflow.keras.utils.Sequence):
         if ~shuffle:
             self.file_list.sort()
         self.on_epoch_end()
-
+        print(f"Found {len(self.file_list)} data files.")
+        
         if ((inputs is None) | (outputs is None)):
             print("Both the inputs (--inputs) and outputs (--outputs) must be defined with comma-separated strings.")
             print("The following fields are available:")

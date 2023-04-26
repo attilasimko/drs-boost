@@ -16,11 +16,11 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Conv2D, BatchNormalization, Add, Lambda, UpSampling2D, Conv2DTranspose, concatenate
 
 class UNetModel(BaseModel):
-
-    config = {
+    def get_config(num_opt):
+        return {
                 "algorithm": "bayes",
                 "name": "SRResNet",
-                "spec": {"maxCombo": 50, "objective": "minimize", "metric": "val_loss"},
+                "spec": {"maxCombo": num_opt, "objective": "minimize", "metric": "val_loss"},
                 "parameters": {
                     "optimizer": {"type": "categorical", "values": ["Adam", "SGD", "RMSprop"]},
                     "learning_rate": {"type": "float", "scalingType": "loguniform", "min": 0.0000001, "max": 0.01},
@@ -30,6 +30,7 @@ class UNetModel(BaseModel):
                 },
                 "trials": 1,
             }
+    
     def sct_range(x):
         import tensorflow
         from tensorflow.keras import backend as K
@@ -114,6 +115,7 @@ class UNetModel(BaseModel):
                     padding='same',
                     kernel_initializer='HeNormal')(conv)
         return conv
+    
     def build(experiment, generator):
         tf.config.experimental.enable_tensor_float_32_execution(False)
 
@@ -162,47 +164,19 @@ class UNetModel(BaseModel):
         model = Model(inputs, outputs)
         return model
 
-    def train(model, experiment, gen_train, gen_val, num_epochs):
-        from tensorflow.keras.utils import OrderedEnqueuer
-        from tensorflow.config.experimental import get_device_details, get_memory_info
-        from tensorflow.config import list_physical_devices
+    def train(model, experiment, gen_train, gen_val, epoch):
         import numpy as np
         import utils.utils_misc as utils_misc
         import time
         
-        project_name = experiment.get_parameter("project_name")
-        print("Training...")
-        print(f"You can track your experiment at: https://www.comet.ml/attilasimko/{project_name}")
-
-        if (utils_misc.memory_check(experiment, model) == False):
-            val_score = utils_misc.evaluate(experiment, model, gen_val, "val")
-            return
-        
-        min_loss = np.inf
-        patience = 0
-        patience_thr = 20
-        epoch = 0
-        while (epoch < num_epochs):
-            tic = time.perf_counter()
-            train_loss = []
-            for i, data in enumerate(gen_train):
-                x = data[0]
-                y = data[1]
-                loss = model.train_on_batch(x, y)
-                train_loss.append(loss)
-
-            toc = time.perf_counter()
-            experiment.log_metrics({"training_loss": np.mean(train_loss),
-                                    "epoch_time": toc - tic}, epoch=epoch)
-
-            val_score = utils_misc.evaluate(experiment, model, gen_val, "val")
-            if (val_score < min_loss):
-                patience = 0
-                min_loss = val_score
-                print("Validation score %s", val_score)
-            else:
-                patience += 1
-                if patience > patience_thr:
-                    print("Early stopping")
-                    break
-            epoch += 1
+        tic = time.perf_counter()
+        train_loss = []
+        for i, data in enumerate(gen_train):
+            x = data[0]
+            y = data[1]
+            loss = model.train_on_batch(x, y)
+            train_loss.append(loss)
+        toc = time.perf_counter()
+        experiment.log_metrics({"epoch_time": toc - tic}, epoch=epoch)
+        val_score = utils_misc.evaluate(experiment, model, gen_val, "val")
+        return train_loss, val_score

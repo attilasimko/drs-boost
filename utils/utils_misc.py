@@ -1,11 +1,11 @@
 def setup_generators(data_path, inputs, outputs):
     from data import DataGenerator
-
-    print("Setting up training generator...")
+    
+    print("\nSetting up training generator...")
     dataset_train = DataGenerator(data_path + "training/", inputs, outputs)
-    print("Setting up validation generator...")
+    print("\nSetting up validation generator...")
     dataset_validate = DataGenerator(data_path + "validating/", inputs, outputs)
-    print("Setting up testing generator...")
+    print("\nSetting up testing generator...")
     dataset_test = DataGenerator(data_path + "testing/", inputs, outputs)
 
     return dataset_train, dataset_validate, dataset_test
