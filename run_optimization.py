@@ -54,6 +54,8 @@ else:
 for model_name in model_array:
     models.find_model_using_name(model_name)
 
+gen_train, gen_val, gen_test = setup_generators(data_path, input_array, output_array)
+
 for model_name in model_array:
     model = models.find_model_using_name(model_name)
     opt_comet = comet_ml.Optimizer(model.get_config(num_opt))
@@ -63,13 +65,12 @@ for model_name in model_array:
         experiment.log_parameter("epochs", num_epochs)
         experiment.log_parameter("model", model_name)
         experiment.set_name(f"{experiment.get_parameter('model')}_{experiment_idx}")
-        experiment.log_parameter("dataroot", data_path)
+        experiment.log_parameter("data_path", data_path)
         experiment.log_parameter("workers", 4)
         experiment.log_parameter("max_queue_size", 4)
         experiment.log_parameter("use_multiprocessing", "False")
         print(f"Model: {model_name} training iteration {experiment_idx}...")
         print(f"You can track your experiment at: https://www.comet.ml/attilasimko/{name}")
-        gen_train, gen_val, gen_test = setup_generators(data_path, input_array, output_array)
 
         model_class = models.find_model_using_name(model_name)
         model = model_class.build(experiment, gen_train)

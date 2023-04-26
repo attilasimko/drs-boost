@@ -82,6 +82,7 @@ class BaseModel(ABC):
     def compile_model(model, experiment):
         from tensorflow.keras.optimizers import Adam, SGD, RMSprop
         print("\nCompiling model...")
+        print(f"Learning rate: {experiment.get_parameter('learning_rate')}")
         if (experiment.get_parameter("optimizer") == "Adam"): # "Adam", "SGD", "RMSprop"
             print("Optimizer: Adam")
             model.compile(optimizer=Adam(experiment.get_parameter("learning_rate")), loss='mse', metrics=['mse'])
@@ -91,7 +92,7 @@ class BaseModel(ABC):
         elif (experiment.get_parameter("optimizer") == "RMSprop"):
             print("Optimizer: RMSprop")
             model.compile(optimizer=SGD(experiment.get_parameter("learning_rate")), loss='mse', metrics=['mse'])
-            
+
         print(f"Training loss: mse")
         print(f"Validation metric: mse")
 
