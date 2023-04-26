@@ -49,7 +49,7 @@ import models
 if (args.num_epochs is None):
     num_epochs = np.inf
 else:
-    num_epochs = args.num_epochs
+    num_epochs = int(args.num_epochs)
 
 for model_name in model_array:
     models.find_model_using_name(model_name)
