@@ -27,7 +27,7 @@ def get_activation(image):
         return 'znorm'
     elif ((np.abs(np.min(image) + 1) < thr) & (np.abs(np.max(image) - 1) < thr)):
         return '-11_range'
-    elif ((np.abs(np.min(image)) < thr) & (image.dtype != np.bool_)):
+    elif ((np.abs(np.min(image)) < thr) & (image.dtype != np.bool)):
         return 'relu'
     else:
         return image.dtype

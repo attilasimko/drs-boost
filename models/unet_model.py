@@ -149,7 +149,7 @@ class UNetModel(BaseModel):
         start_idx = 0
         for i in range(len(generator.outputs)):
             current_out = out[:, :, :, start_idx:start_idx+generator.out_dims[i][1]]
-            if (generator.output_types[i] == np.bool_):
+            if (generator.output_types[i] == np.bool):
                 out = Activation('sigmoid')(out)
             elif (generator.output_types[i] == "znorm"):
                 out = Activation(UNetModel.znorm)(out)
@@ -162,7 +162,7 @@ class UNetModel(BaseModel):
         model = Model(inputs, outputs)
         return model
 
-    def train(model, experiment, gen_train, gen_val):
+    def train(model, experiment, gen_train, gen_val, num_epochs):
         from tensorflow.keras.utils import OrderedEnqueuer
         from tensorflow.config.experimental import get_device_details, get_memory_info
         from tensorflow.config import list_physical_devices
@@ -181,7 +181,8 @@ class UNetModel(BaseModel):
         min_loss = np.inf
         patience = 0
         patience_thr = 20
-        for epoch in range(experiment.get_parameter("epochs")):
+        epoch = 0
+        while (epoch < num_epochs):
             tic = time.perf_counter()
             train_loss = []
             for i, data in enumerate(gen_train):
@@ -204,4 +205,4 @@ class UNetModel(BaseModel):
                 if patience > patience_thr:
                     print("Early stopping")
                     break
-
+            epoch += 1
