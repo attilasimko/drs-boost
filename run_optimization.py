@@ -78,7 +78,7 @@ for model_name in model_array:
         model_class.compile_model(model, experiment)
 
 
-        print("Training...")
+        print("\nTraining...")
         if (utils_misc.memory_check(experiment, model) == False):
             print("Not enough memory to train this model, skipping to next model.")
             val_metric = utils_misc.evaluate(experiment, model, gen_val, "val")

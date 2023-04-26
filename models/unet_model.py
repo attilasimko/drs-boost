@@ -118,6 +118,7 @@ class UNetModel(BaseModel):
     
     def build(experiment, generator):
         tf.config.experimental.enable_tensor_float_32_execution(False)
+        print("\nBuilding model...")
 
         x_skip = []
         outputs = []

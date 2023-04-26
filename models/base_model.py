@@ -81,13 +81,19 @@ class BaseModel(ABC):
 
     def compile_model(model, experiment):
         from tensorflow.keras.optimizers import Adam, SGD, RMSprop
-
+        print("\nCompiling model...")
         if (experiment.get_parameter("optimizer") == "Adam"): # "Adam", "SGD", "RMSprop"
+            print("Optimizer: Adam")
             model.compile(optimizer=Adam(experiment.get_parameter("learning_rate")), loss='mse', metrics=['mse'])
         elif (experiment.get_parameter("optimizer") == "SGD"):
+            print("Optimizer: SGD")
             model.compile(optimizer=SGD(experiment.get_parameter("learning_rate")), loss='mse', metrics=['mse'])
         elif (experiment.get_parameter("optimizer") == "RMSprop"):
+            print("Optimizer: RMSprop")
             model.compile(optimizer=SGD(experiment.get_parameter("learning_rate")), loss='mse', metrics=['mse'])
+            
+        print(f"Training loss: mse")
+        print(f"Validation metric: mse")
 
     def eval(self):
         """Make models eval mode during test time"""
