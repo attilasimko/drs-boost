@@ -5,11 +5,10 @@ parser.add_argument("--data", default=None, help="Name your experiment to help w
 parser.add_argument("--inputs", default=None, help="The field(s) to use as input(s) to the model. Multiple fields should be comma-separated.")
 parser.add_argument("--outputs", default=None, help="The field(s) to use as target(s) of the model. Multiple fields should be comma-separated.")
 parser.add_argument("--models", default="unet", help="The model architectures that will be used. Multiple models should be comma-separated. Possible values: unet, srresnet.")
-parser.add_argument("--max_size", default=5000)
-parser.add_argument("--num_epochs", default=3)
-parser.add_argument("--batch_size", default=1)
-parser.add_argument("--gpu", default=0)
-parser.add_argument("--log_comet", default=True)
+parser.add_argument("--num_epochs", default=None, help="Set the maximum number of epochs. Default is infinity.")
+parser.add_argument("--batch_size", default=1, help="Batch size to use during training. Default is 1.")
+parser.add_argument("--gpu", default=0, help="GPU to use for training on the cluster. Default is 0.")
+parser.add_argument("--log_comet", default=True, help="Log online on comet.ml. Default is True.")
 args = parser.parse_args()
 name = args.name
 log_comet = args.log_comet
@@ -45,6 +44,13 @@ import time
 import numpy as np
 from utils.utils_misc import setup_generators
 import models
+
+if (args.num_epochs is None):
+    num_epochs = np.inf
+else:
+    num_epochs = args.num_epochs
+
+
 for model_name in model_array:
     models.find_model_using_name(model_name)
 
@@ -54,7 +60,7 @@ for model_name in model_array:
     experiment_idx = 0
     for experiment in opt_comet.get_experiments(disabled=not(log_comet)):
         experiment.log_parameter("project_name", name)
-        experiment.log_parameter("epochs", 500)
+        experiment.log_parameter("epochs", num_epochs)
         experiment.log_parameter("model", model_name)
         experiment.set_name(f"{experiment.get_parameter('model')}_{experiment_idx}")
         experiment.log_parameter("dataroot", data_path)
@@ -69,7 +75,7 @@ for model_name in model_array:
         
         model_class.get_summary(model)
         model_class.compile_model(model, experiment)
-        model_class.train(model, experiment, gen_train, gen_val)
+        model_class.train(model, experiment, gen_train, gen_val, num_epochs)
 
         # How well did it do?
         utils_misc.plot_results(experiment, model, gen_val)
