@@ -152,12 +152,16 @@ class UNetModel(BaseModel):
         for i in range(len(generator.outputs)):
             current_out = out[:, :, :, start_idx:start_idx+generator.out_dims[i][1]]
             if (generator.output_types[i] == np.bool):
+                print(f"Applying sigmoid activation to Output {i}.")
                 out = Activation('sigmoid')(out)
             elif (generator.output_types[i] == "znorm"):
+                print(f"Applying Z-Normalization activation to Output {i}.")
                 out = Activation(UNetModel.znorm)(out)
             elif (generator.output_types[i] == "-11_range"):
+                print(f"Applying [-1, 1] range activation to Output {i}.")
                 out = Activation(UNetModel.sct_range)(out)
             elif (generator.output_types[i] == "relu"):
+                print(f"Applying ReLU activation to Output {i}.")
                 out = Activation('relu')(out)
             outputs.append(out)
         

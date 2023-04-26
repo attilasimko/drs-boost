@@ -68,6 +68,7 @@ for model_name in model_array:
         experiment.log_parameter("max_queue_size", 4)
         experiment.log_parameter("use_multiprocessing", "False")
         print(f"Model: {model_name} training iteration {experiment_idx}...")
+        print(f"You can track your experiment at: https://www.comet.ml/attilasimko/{name}")
         gen_train, gen_val, gen_test = setup_generators(data_path, input_array, output_array)
 
         model_class = models.find_model_using_name(model_name)
@@ -76,11 +77,10 @@ for model_name in model_array:
         model_class.get_summary(model)
         model_class.compile_model(model, experiment)
 
-        project_name = experiment.get_parameter("project_name")
-        print("Training...")
-        print(f"You can track your experiment at: https://www.comet.ml/attilasimko/{project_name}")
 
+        print("Training...")
         if (utils_misc.memory_check(experiment, model) == False):
+            print("Not enough memory to train this model, skipping to next model.")
             val_metric = utils_misc.evaluate(experiment, model, gen_val, "val")
             continue
         
