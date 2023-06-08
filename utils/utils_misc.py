@@ -159,7 +159,10 @@ def plot_results(experiment, model, gen):
                 plt.xticks([])
                 plt.yticks([])
 
-            y_num = len(y)
+            if (model_type == "resnet"):
+                y_num = np.shape(pred)[1]
+            else:
+                y_num = len(y)
             for idx in range(y_num):
                 plt.subplot(3, y_num, y_num + idx + 1)
                 if (model_type == "resnet"):
