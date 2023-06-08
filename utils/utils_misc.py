@@ -169,7 +169,7 @@ def plot_results(experiment, model, gen):
                     plt.imshow(pred[0:1, :], vmin=0, vmax=1, cmap='gray')
                 else:
                     plt.imshow(pred[0, :, :, 0], cmap='gray')
-                plt.colorbar()
+                    plt.colorbar()
                 plt.xticks([])
                 plt.yticks([])
 
@@ -179,7 +179,7 @@ def plot_results(experiment, model, gen):
                     plt.imshow(y[0:1, :], vmin=0, vmax=1, cmap='gray')
                 else:
                     plt.imshow(y[idx][0, :, :, 0], cmap='gray')
-                plt.colorbar()
+                    plt.colorbar()
                 plt.xticks([])
                 plt.yticks([])
             experiment.log_figure(figure=plt, figure_name="results_" + str(i), overwrite=True)
