@@ -124,6 +124,7 @@ def evaluate(experiment, model, gen, eval_type):
     for i, data in enumerate(gen):
         x = data[0]
         y = data[1]
+        y = np.stack(y, 1)[:, :, 0, 0, 0] # Erik HC
         pred = model.predict_on_batch(x)
         loss = np.abs(pred - y)
         loss_list.extend([np.mean(loss)])
@@ -134,12 +135,18 @@ def evaluate(experiment, model, gen, eval_type):
 def plot_results(experiment, model, gen):
     import numpy as np
     import matplotlib.pyplot as plt
+    model_type = experiment.get_parameter("model")
     plot_idx = 0
     plot_num = 10
     for i, data in enumerate(gen):
         if (plot_idx <= plot_num):
+            if (model_type == "resnet"):
+                if (data[1][0][0, 0, 0, 0] == 1):
+                    continue
+
             plot_idx += 1
             y = data[1]
+            y = np.stack(y, 1)[:, :, 0, 0, 0] # Erik HC
             x = data[0]
             pred = model.predict_on_batch(x)
 
@@ -155,14 +162,20 @@ def plot_results(experiment, model, gen):
             y_num = len(y)
             for idx in range(y_num):
                 plt.subplot(3, y_num, y_num + idx + 1)
-                plt.imshow(pred[0, :, :, 0], cmap='gray')
+                if (model_type == "resnet"):
+                    plt.imshow(pred[0:1, :], vmin=0, vmax=1, cmap='gray')
+                else:
+                    plt.imshow(pred[0, :, :, 0], cmap='gray')
                 plt.colorbar()
                 plt.xticks([])
                 plt.yticks([])
 
             for idx in range(y_num):
                 plt.subplot(3, y_num, y_num + y_num + idx + 1)
-                plt.imshow(y[idx][0, :, :, 0], cmap='gray')
+                if (model_type == "resnet"):
+                    plt.imshow(y[0:1, :], vmin=0, vmax=1, cmap='gray')
+                else:
+                    plt.imshow(y[idx][0, :, :, 0], cmap='gray')
                 plt.colorbar()
                 plt.xticks([])
                 plt.yticks([])
@@ -196,7 +209,7 @@ def export_weights_to_hero(model, experiment, save_path, name):
 
     os.mkdir(save_path + name)
     full_model = function(lambda x: model(x)) 
-    full_model = full_model.get_concrete_function(TensorSpec(model.inputs[0].shape, model.inputs[0].dtype))
+    full_model = full_model.get_concrete_function([TensorSpec(x.shape, x.dtype) for x in model.inputs])
     # Get frozen ConcreteFunction
     frozen_func = convert_variables_to_constants_v2(full_model)
     frozen_func.graph.as_graph_def()

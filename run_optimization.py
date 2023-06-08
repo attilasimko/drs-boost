@@ -110,6 +110,7 @@ for model_name in model_array:
 
 
         # How well did it do?
+        print("Plotting, evaluating, exporting weights...")
         utils_misc.plot_results(experiment, model, gen_val)
         utils_misc.evaluate(experiment, model, gen_test, "test")
         utils_misc.export_weights_to_hero(model, experiment, data_path + "temp/", f"{experiment.get_parameter('model')}_{experiment_idx}")
