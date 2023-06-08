@@ -4,7 +4,7 @@ parser.add_argument("--name", required=True, help="Name your experiment to help 
 parser.add_argument("--data", default=None, help="Name your experiment to help with online tracking.")
 parser.add_argument("--inputs", default=None, help="The field(s) to use as input(s) to the model. Multiple fields should be comma-separated.")
 parser.add_argument("--outputs", default=None, help="The field(s) to use as target(s) of the model. Multiple fields should be comma-separated.")
-parser.add_argument("--models", default="unet", help="The model architectures that will be used. Multiple models should be comma-separated. Possible values: unet, srresnet.")
+parser.add_argument("--models", default="resnet", help="The model architectures that will be used. Multiple models should be comma-separated. Possible values: unet, srresnet.")
 parser.add_argument("--num_epochs", default=None, help="Set the maximum number of epochs. Default is infinity.")
 parser.add_argument("--num_opt", default=10, help="Set the number of optimization steps. Default is 10.")
 parser.add_argument("--batch_size", default=1, help="Batch size to use during training. Default is 1.")
