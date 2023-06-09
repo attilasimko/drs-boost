@@ -136,6 +136,8 @@ def plot_results(experiment, model, gen):
     import numpy as np
     import matplotlib.pyplot as plt
     model_type = experiment.get_parameter("model")
+    inputs = experiment.get_parameter("inputs").split(',')
+    outputs = experiment.get_parameter("outputs").split(',')
     plot_idx = 0
     plot_num = 10
     for i, data in enumerate(gen):
@@ -155,6 +157,7 @@ def plot_results(experiment, model, gen):
             for idx in range(x_num):
                 plt.subplot(3, x_num, idx + 1)
                 plt.imshow(x[idx][0, :, :, 0], cmap='gray')
+                plt.title(inputs[idx])
                 plt.colorbar()
                 plt.xticks([])
                 plt.yticks([])
@@ -167,9 +170,11 @@ def plot_results(experiment, model, gen):
                 plt.subplot(3, y_num, y_num + idx + 1)
                 if (model_type == "resnet"):
                     plt.imshow(pred[0:1, :], vmin=0, vmax=1, cmap='gray')
+                    plt.title(f"Prediction: {str.join(', ', outputs)}")
                 else:
-                    plt.imshow(pred[0, :, :, 0], cmap='gray')
-                    plt.colorbar()
+                    plt.imshow(pred[idx][0, :, :, 0], cmap='gray')
+                    plt.title(outputs[idx])
+                plt.colorbar()
                 plt.xticks([])
                 plt.yticks([])
 
@@ -177,9 +182,11 @@ def plot_results(experiment, model, gen):
                 plt.subplot(3, y_num, y_num + y_num + idx + 1)
                 if (model_type == "resnet"):
                     plt.imshow(y[0:1, :], vmin=0, vmax=1, cmap='gray')
+                    plt.title(f"Ground truth: {str.join(', ', outputs)}")
                 else:
                     plt.imshow(y[idx][0, :, :, 0], cmap='gray')
-                    plt.colorbar()
+                    plt.title(outputs[idx])
+                plt.colorbar()
                 plt.xticks([])
                 plt.yticks([])
             experiment.log_figure(figure=plt, figure_name="results_" + str(i), overwrite=True)
