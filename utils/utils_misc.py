@@ -160,7 +160,7 @@ def plot_results(experiment, model, gen):
                 plt.yticks([])
 
             if (model_type == "resnet"):
-                y_num = np.shape(pred)[1]
+                y_num = 1
             else:
                 y_num = len(y)
             for idx in range(y_num):
