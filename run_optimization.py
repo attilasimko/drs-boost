@@ -53,6 +53,14 @@ else:
 
 for model_name in model_array:
     models.find_model_using_name(model_name)
+    
+if (input_array is None):
+    input_var = input("Enter the name(s) of the input data (comma-separated):")
+    input_array = input_var
+
+if (output_array is None):
+    output_var = input("Enter the name(s) of the output data (comma-separated):")
+    output_array = output_var
 
 gen_train, gen_val, gen_test = setup_generators(data_path, input_array, output_array)
 
@@ -75,7 +83,7 @@ for model_name in model_array:
         model_class = models.find_model_using_name(model_name)
         model = model_class.build(experiment, gen_train)
         
-        model_class.get_summary(model)
+        model_class.get_summary(model, experiment)
         model_class.compile_model(model, experiment)
 
 
