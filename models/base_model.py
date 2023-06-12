@@ -74,10 +74,14 @@ class BaseModel(ABC):
         """Calculate losses, gradients, and update network weights; called in every training iteration"""
         pass
 
-    def get_summary(model):
+    def get_summary(model, experiment):
         import tensorflow.keras.backend as K
         import numpy as np
-        print(f"Number of trainable parameters: {int(np.sum([K.count_params(p) for p in model.trainable_weights]))}")
+
+        num_parameters = int(np.sum([K.count_params(p) for p in model.trainable_weights]))
+        print(f"Number of trainable parameters: {num_parameters}")
+        experiment.log_parameter("num_parameters", num_parameters)
+
 
     def compile_model(model, experiment):
         from tensorflow.keras.optimizers import Adam, SGD, RMSprop
