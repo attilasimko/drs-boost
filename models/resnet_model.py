@@ -76,6 +76,34 @@ class ResNetModel(BaseModel):
 
         return x
     
+    def res_identity(x, filters): 
+        #renet block where dimension doesnot change.
+        #The skip connection is just simple identity conncection
+        #we will have 3 blocks and then input will be added
+
+        x_skip = x # this will be used for addition with the residual block 
+        f1, f2 = filters
+
+        #first block 
+        x = Conv2D(f1, kernel_size=(1, 1), strides=(1, 1), padding='valid', kernel_regularizer=l2(0.001))(x)
+        x = BatchNormalization()(x)
+        x = Activation(activations.relu)(x)
+
+        #second block # bottleneck (but size kept same with padding)
+        x = Conv2D(f1, kernel_size=(3, 3), strides=(1, 1), padding='same', kernel_regularizer=l2(0.001))(x)
+        x = BatchNormalization()(x)
+        x = Activation(activations.relu)(x)
+
+        # third block activation used after adding the input
+        x = Conv2D(f2, kernel_size=(1, 1), strides=(1, 1), padding='valid', kernel_regularizer=l2(0.001))(x)
+        x = BatchNormalization()(x)
+        # x = Activation(activations.relu)(x)
+
+        # add the input 
+        x = Add()([x, x_skip])
+        x = Activation(activations.relu)(x)
+
+        return x
     def build(experiment, generator):
         tf.config.experimental.enable_tensor_float_32_execution(False)
         print("\nBuilding model...")
@@ -100,7 +128,9 @@ class ResNetModel(BaseModel):
         x = input
         i = 0
         while np.cumprod(np.shape(x)[1:])[-1] > 256:
-            x = ResNetModel.encoding_block(x,num_filters*(2**i),dropout_prob=dropout_rate, max_pooling=True)
+            x = ResNetModel.res_conv(x, 1, (num_filters*(2**i), num_filters*(4**i)))
+            x = ResNetModel.res_identity(x, (num_filters*(2**i), num_filters*(4**i)))
+            x = ResNetModel.res_identity(x, (num_filters*(2**i), num_filters*(4**i)))
             i += 1
             if (i > 10):
                 raise Exception("Too many layers!")
@@ -111,23 +141,6 @@ class ResNetModel(BaseModel):
         x = Dense(64, activation='relu')(x)
         x = Dense(12, activation='relu')(x)
         outputs = Dense(len(generator.outputs), activation="softmax")(x)
-        # outputs = []
-        # start_idx = 0
-        # for i in range(len(generator.outputs)):
-        #     current_out = out[:, :, :, start_idx:start_idx+generator.out_dims[i][1]]
-        #     if (generator.output_types[i] == np.bool):
-        #         print(f"Applying sigmoid activation to Output {i}.")
-        #         out = Activation('sigmoid')(out)
-        #     elif (generator.output_types[i] == "znorm"):
-        #         print(f"Applying Z-Normalization activation to Output {i}.")
-        #         out = Activation(ResNetModel.znorm)(out)
-        #     elif (generator.output_types[i] == "-11_range"):
-        #         print(f"Applying [-1, 1] range activation to Output {i}.")
-        #         out = Activation(ResNetModel.sct_range)(out)
-        #     elif (generator.output_types[i] == "relu"):
-        #         print(f"Applying ReLU activation to Output {i}.")
-        #         out = Activation('relu')(out)
-        #     outputs.append(out)
         
         model = Model(inputs, outputs)
         return model
