@@ -121,14 +121,15 @@ class ResNetModel(BaseModel):
         x = BatchNormalization()(x)
         x = Activation(activations.relu)(x)
         x = MaxPooling2D((2, 2))(x)
-        
+
         num_filters = experiment.get_parameter('num_filters')
         dropout_rate = experiment.get_parameter('dropout_rate')
 
         x = input
         i = 0
         while np.cumprod(np.shape(x)[1:])[-1] > 256:
-            x = ResNetModel.res_conv(x, 1, (num_filters*(2**i), num_filters*(4**i)))
+            s = 2 if i > 0 else 1
+            x = ResNetModel.res_conv(x, s, (num_filters*(2**i), num_filters*(4**i)))
             x = ResNetModel.res_identity(x, (num_filters*(2**i), num_filters*(4**i)))
             x = ResNetModel.res_identity(x, (num_filters*(2**i), num_filters*(4**i)))
             i += 1
