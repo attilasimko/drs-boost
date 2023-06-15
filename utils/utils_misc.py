@@ -10,6 +10,10 @@ def setup_generators(data_path, inputs, outputs):
 
     return dataset_train, dataset_validate, dataset_test
 
+def get_array_names(data_path):
+    from data import report_names
+    report_names(data_path + "training/")
+
 def get_less_used_gpu(gpus=None, debug=False):
     from torch import cuda
     """Inspect cached/reserved and allocated memory on specified gpus and return the id of the less used device"""

@@ -32,6 +32,16 @@ def get_activation(image):
     else:
         return image.dtype
 
+def report_names(data_path):
+    file_list = [data_path + '/' + s for s in
+                        os.listdir(data_path)]
+    text = "Use the following field names comma-separated: "
+    with np.load(file_list[0], allow_pickle=True) as npzfile:
+        for file_name in npzfile.files:
+            im = npzfile[file_name]
+            text(f"{file_name} ({str(im.dtype)}) - {str(im.shape)}")
+        npzfile.close()
+
 class DataGenerator(tensorflow.keras.utils.Sequence):
     def __init__(self,
                  data_path,

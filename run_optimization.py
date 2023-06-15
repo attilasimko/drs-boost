@@ -43,7 +43,7 @@ print("Training will be done on GPU: ", gpu)
 import os
 import time
 import numpy as np
-from utils.utils_misc import setup_generators
+from utils.utils_misc import setup_generators, get_array_names
 import models
 
 if (args.num_epochs is None):
@@ -55,10 +55,12 @@ for model_name in model_array:
     models.find_model_using_name(model_name)
     
 if (input_array is None):
+    get_array_names(data_path)
     input_var = input("Enter the name(s) of the input data (comma-separated):")
     input_array = input_var
 
 if (output_array is None):
+    get_array_names(data_path)
     output_var = input("Enter the name(s) of the output data (comma-separated):")
     output_array = output_var
 
