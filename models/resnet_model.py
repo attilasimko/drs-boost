@@ -127,7 +127,7 @@ class ResNetModel(BaseModel):
 
         x = input
         i = 0
-        while np.cumprod(np.shape(x)[1:])[-1] > 256:
+        while ((np.shape(x)[0] >= 2) & (np.cumprod(np.shape(x)[1:])[-1] > 256)):
             s = 2 if i > 0 else 1
             x = ResNetModel.res_conv(x, s, (num_filters*(2**i), num_filters*(4**i)))
             x = ResNetModel.res_identity(x, (num_filters*(2**i), num_filters*(4**i)))
