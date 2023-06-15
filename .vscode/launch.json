@@ -13,8 +13,9 @@
             "justMyCode": true,
             "args": ["--name", "helloworld",
                      "--data", "/mnt/4a39cb60-7f1f-4651-81cb-029245d590eb/erikdata/",
-                     "--inputs", "t2,ktrans,psma",
-                     "--outputs", "background,grade3,grade4,grade5"]
+                     //"--inputs", "t2,ktrans,psma",
+                     //"--outputs", "background,grade3,grade4,grade5"
+                    ]
         }
     ]
 }
