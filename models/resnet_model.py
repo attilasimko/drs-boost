@@ -24,9 +24,9 @@ class ResNetModel(BaseModel):
                 "parameters": {
                     "optimizer": {"type": "categorical", "values": ["Adam", "SGD", "RMSprop"]},
                     "learning_rate": {"type": "float", "scalingType": "loguniform", "min": 0.0000001, "max": 0.01},
-                    "num_filters": {"type": "integer", "min": 8, "max": 64},
+                    "num_filters": {"type": "integer", "min": 8, "max": 256},
                     "dropout_rate": {"type": "float", "min": 0.0, "max": 0.6},
-                    "batch_size": {"type": "discrete", "values": [4, 8]},
+                    "batch_size": {"type": "discrete", "values": [4, 8, 16, 32]},
                 },
                 "trials": 1,
             }
@@ -108,7 +108,6 @@ class ResNetModel(BaseModel):
         tf.config.experimental.enable_tensor_float_32_execution(False)
         print("\nBuilding model...")
 
-        x_skip = []
         outputs = []
         inputs = []
         for i in range(len(generator.inputs)):
@@ -137,8 +136,11 @@ class ResNetModel(BaseModel):
                 raise Exception("Too many layers!")
         
         x = Flatten()(x)
+        x = Dropout(dropout_rate)(x)
         x = Dense(256, activation='relu')(x)
+        x = Dropout(dropout_rate)(x)
         x = Dense(128, activation='relu')(x)
+        x = Dropout(dropout_rate)(x)
         x = Dense(64, activation='relu')(x)
         x = Dense(12, activation='relu')(x)
         outputs = Dense(len(generator.outputs), activation="softmax")(x)
