@@ -144,16 +144,19 @@ class DataGenerator(tensorflow.keras.utils.Sequence):
             outputs.append(np.empty(self.out_dims[i]).astype(self.output_types[i]))
 
         for i, ID in enumerate(temp_list):
-            with np.load(ID, allow_pickle=True) as npzfile:
-                for idx in range(len(self.inputs)):
-                    x = npzfile[self.inputs[idx]] \
-                        .astype(self.input_types[idx])
-                    inputs[idx][i, ] = x
+            try:
+                with np.load(ID, allow_pickle=True) as npzfile:
+                    for idx in range(len(self.inputs)):
+                        x = npzfile[self.inputs[idx]] \
+                            .astype(self.input_types[idx])
+                        inputs[idx][i, ] = x
 
-                for idx in range(len(self.outputs)):
-                    x = npzfile[self.outputs[idx]] \
-                        .astype(self.output_types[idx])
-                    outputs[idx][i, ] = x
-                npzfile.close()
+                    for idx in range(len(self.outputs)):
+                        x = npzfile[self.outputs[idx]] \
+                            .astype(self.output_types[idx])
+                        outputs[idx][i, ] = x
+                    npzfile.close()
+            except:
+                raise ValueError(f"Error loading file {ID}")
             
         return inputs, outputs
