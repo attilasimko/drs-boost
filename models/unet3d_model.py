@@ -139,59 +139,6 @@ class UNet3DModel(BaseModel):
 
         return model
     
-    # def build(experiment, generator):
-    #     tf.config.experimental.enable_tensor_float_32_execution(False)
-    #     print("\nBuilding model...")
-
-    #     x_skip = []
-    #     outputs = []
-    #     inputs = []
-    #     for i in range(len(generator.inputs)):
-    #         inputs.append(Input(shape=generator.in_dims[i][1:]))
-    #     input = Concatenate()(inputs)
-
-    #     for i in range(len(generator.outputs)):
-    #         outputs.append(Input(shape=generator.out_dims[i][1:]))
-    #     output = Concatenate()(outputs)
-        
-    #     num_filters = experiment.get_parameter('num_filters')
-    #     dropout_rate = experiment.get_parameter('dropout_rate')
-        
-    #     for i in range(int(np.log2(input.shape[1] / 16) + 1)):
-    #         if (i == 0):
-    #             x_skip.insert(0, UNetModel.encoding_block(input, num_filters,dropout_prob=0, max_pooling=True))
-    #         elif (i == int(np.log2(input.shape[1] / 16))):
-    #             x_skip.insert(0, UNetModel.encoding_block(x_skip[0][0], num_filters*(2**i), dropout_prob=dropout_rate, max_pooling=False)) 
-    #         else:
-    #             x_skip.insert(0, UNetModel.encoding_block(x_skip[0][0],num_filters*(2**i),dropout_prob=0, max_pooling=True))
-        
-    #     ublock = x_skip[0][0]
-    #     for i in range(int(np.log2(output.shape[1] / x_skip[0][1].shape[1]))):
-    #         ublock = UNetModel.decoding_block(ublock, x_skip[i+1][1], ublock.shape[-1] / (2**i))
-    #     out = Conv2D(output.shape[-1], 3, activation='relu', padding='same', kernel_initializer='he_normal')(ublock)
-    #     out = Conv2D(output.shape[-1], 1, padding='same', kernel_initializer='he_normal')(out)
-        
-    #     outputs = []
-    #     start_idx = 0
-    #     for i in range(len(generator.outputs)):
-    #         current_out = out[:, :, :, start_idx:start_idx+generator.out_dims[i][1]]
-    #         if (generator.output_types[i] == np.bool):
-    #             print(f"Applying sigmoid activation to Output {i}.")
-    #             out = Activation('sigmoid')(out)
-    #         elif (generator.output_types[i] == "znorm"):
-    #             print(f"Applying Z-Normalization activation to Output {i}.")
-    #             out = Activation(UNetModel.znorm)(out)
-    #         elif (generator.output_types[i] == "-11_range"):
-    #             print(f"Applying [-1, 1] range activation to Output {i}.")
-    #             out = Activation(UNetModel.sct_range)(out)
-    #         elif (generator.output_types[i] == "relu"):
-    #             print(f"Applying ReLU activation to Output {i}.")
-    #             out = Activation('relu')(out)
-    #         outputs.append(out)
-        
-    #     model = Model(inputs, outputs)
-    #     return model
-
     def train(model, experiment, gen_train, gen_val, epoch):
         import numpy as np
         import utils.utils_misc as utils_misc

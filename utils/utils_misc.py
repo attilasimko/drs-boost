@@ -1,12 +1,12 @@
-def setup_generators(data_path, inputs, outputs):
+def setup_generators(data_path, inputs, outputs, batch_size):
     from data import DataGenerator
     
     print("\nSetting up training generator...")
-    dataset_train = DataGenerator(data_path + "training/", inputs, outputs)
+    dataset_train = DataGenerator(data_path + "training/", inputs, outputs, batch_size=batch_size)
     print("\nSetting up validation generator...")
-    dataset_validate = DataGenerator(data_path + "validating/", inputs, outputs)
+    dataset_validate = DataGenerator(data_path + "validating/", inputs, outputs, batch_size=batch_size)
     print("\nSetting up testing generator...")
-    dataset_test = DataGenerator(data_path + "testing/", inputs, outputs)
+    dataset_test = DataGenerator(data_path + "testing/", inputs, outputs, batch_size=batch_size)
 
     return dataset_train, dataset_validate, dataset_test
 

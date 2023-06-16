@@ -67,7 +67,6 @@ if (output_array is None):
     output_var = input("Enter the name(s) of the output data (comma-separated):")
     output_array = output_var
 
-gen_train, gen_val, gen_test = setup_generators(data_path, input_array, output_array)
 
 for model_name in model_array:
     model = models.find_model_using_name(model_name)
@@ -87,6 +86,7 @@ for model_name in model_array:
         print(f"Model: {model_name} training iteration {experiment_idx}...")
         print(f"You can track your experiment at: https://www.comet.ml/attilasimko/{name}")
 
+        gen_train, gen_val, gen_test = setup_generators(data_path, input_array, output_array, experiment.get_parameter("batch_size"))
         model_class = models.find_model_using_name(model_name)
         model = model_class.build(experiment, gen_train)
         
