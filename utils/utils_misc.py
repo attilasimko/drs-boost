@@ -128,7 +128,8 @@ def evaluate(experiment, model, gen, eval_type):
     for i, data in enumerate(gen):
         x = data[0]
         y = data[1]
-        y = np.stack(y, 1)[:, :, 0, 0, 0] # Erik HC
+        if (experiment.get_parameter("name") == "erik"):
+            y = np.stack(y, 1)[:, :, 0, 0, 0] # Erik HC
         pred = model.predict_on_batch(x)
         loss = np.abs(pred - y)
         loss_list.extend([np.mean(loss)])
@@ -152,7 +153,8 @@ def plot_results(experiment, model, gen):
 
             plot_idx += 1
             y = data[1]
-            y = np.stack(y, 1)[:, :, 0, 0, 0] # Erik HC
+            if (experiment.get_parameter("name") == "erik"):
+                y = np.stack(y, 1)[:, :, 0, 0, 0] # Erik HC
             x = data[0]
             pred = model.predict_on_batch(x)
 
