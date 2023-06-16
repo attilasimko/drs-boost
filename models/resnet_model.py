@@ -158,8 +158,9 @@ class ResNetModel(BaseModel):
         for i, data in enumerate(gen_train):
             x = data[0]
             y = data[1]
+            y = np.stack(y, 1)
             if (experiment.get_parameter("name") == "erik"):
-                y = np.stack(y, 1)[:, :, 0, 0, 0] # Erik HC
+                y = y[:, :, 0, 0, 0] # Erik HC
             loss = model.train_on_batch(x, y)
             train_loss.append(loss)
         toc = time.perf_counter()
