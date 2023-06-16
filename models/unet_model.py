@@ -19,7 +19,7 @@ class UNetModel(BaseModel):
     def get_config(num_opt):
         return {
                 "algorithm": "bayes",
-                "name": "SRResNet",
+                "name": "UNet",
                 "spec": {"maxCombo": num_opt, "objective": "minimize", "metric": "val_loss"},
                 "parameters": {
                     "optimizer": {"type": "categorical", "values": ["Adam", "SGD", "RMSprop"]},

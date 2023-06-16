@@ -5,6 +5,8 @@ parser.add_argument("--data", default=None, help="Name your experiment to help w
 parser.add_argument("--inputs", default=None, help="The field(s) to use as input(s) to the model. Multiple fields should be comma-separated.")
 parser.add_argument("--outputs", default=None, help="The field(s) to use as target(s) of the model. Multiple fields should be comma-separated.")
 parser.add_argument("--models", default="resnet", help="The model architectures that will be used. Multiple models should be comma-separated. Possible values: unet, srresnet.")
+parser.add_argument("--loss", default="mse", help="String definition of loss to use during training.")
+parser.add_argument("--metric", default="mse", help="String definition of metric to use during validation.")
 parser.add_argument("--num_epochs", default=None, help="Set the maximum number of epochs. Default is infinity.")
 parser.add_argument("--num_opt", default=10, help="Set the number of optimization steps. Default is 10.")
 parser.add_argument("--batch_size", default=1, help="Batch size to use during training. Default is 1.")
@@ -15,6 +17,8 @@ name = args.name
 log_comet = args.log_comet
 num_opt = int(args.num_opt)
 data_path = args.data
+loss = args.loss
+metric = args.metric
 input_array = args.inputs
 output_array = args.outputs
 model_array = args.models.split(',')
@@ -74,6 +78,8 @@ for model_name in model_array:
         experiment.log_parameter("project_name", name)
         experiment.log_parameter("epochs", num_epochs)
         experiment.log_parameter("model", model_name)
+        experiment.log_parameter("loss", loss)
+        experiment.log_parameter("metric", metric)
         experiment.set_name(f"{experiment.get_parameter('model')}_{experiment_idx}")
         experiment.log_parameter("data_path", data_path)
         experiment.log_parameter("workers", 4)

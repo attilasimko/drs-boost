@@ -85,20 +85,24 @@ class BaseModel(ABC):
 
     def compile_model(model, experiment):
         from tensorflow.keras.optimizers import Adam, SGD, RMSprop
+        from utils.losses import get_loss, get_metric
+        loss = get_loss(experiment.get_parameter("loss"))
+        metric = get_metric(experiment.get_parameter("metric"))
+
         print("\nCompiling model...")
         print(f"Learning rate: {experiment.get_parameter('learning_rate')}")
         if (experiment.get_parameter("optimizer") == "Adam"): # "Adam", "SGD", "RMSprop"
             print("Optimizer: Adam")
-            model.compile(optimizer=Adam(experiment.get_parameter("learning_rate")), loss='mse', metrics=['mse'])
+            model.compile(optimizer=Adam(experiment.get_parameter("learning_rate")), loss=loss, metrics=[metric])
         elif (experiment.get_parameter("optimizer") == "SGD"):
             print("Optimizer: SGD")
-            model.compile(optimizer=SGD(experiment.get_parameter("learning_rate")), loss='mse', metrics=['mse'])
+            model.compile(optimizer=SGD(experiment.get_parameter("learning_rate")), loss=loss, metrics=[metric])
         elif (experiment.get_parameter("optimizer") == "RMSprop"):
             print("Optimizer: RMSprop")
-            model.compile(optimizer=SGD(experiment.get_parameter("learning_rate")), loss='mse', metrics=['mse'])
+            model.compile(optimizer=RMSprop(experiment.get_parameter("learning_rate")), loss=loss, metrics=[metric])
 
-        print(f"Training loss: mse")
-        print(f"Validation metric: mse")
+        print(f"Training loss: {loss}")
+        print(f"Validation metric: {metric}")
 
     def eval(self):
         """Make models eval mode during test time"""
