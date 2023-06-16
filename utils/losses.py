@@ -15,8 +15,8 @@ def get_metric(metric_name):
     return metric_name
 
 def surface_loss_with_mauer(y_true, y_pred):
-    mask = y_true[:,0,:,:,:,0]
-    map = y_true[:,1,:,:,:,0]
+    mask = y_true[:,0,:,:,:]
+    map = y_true[:,1,:,:,:]
     map = map / tensorflow.reduce_sum(map)
     merr = tensorflow.abs(mask - y_pred)
     surface_loss = tensorflow.reduce_sum(merr * map)
@@ -24,7 +24,7 @@ def surface_loss_with_mauer(y_true, y_pred):
 
 def generalized_dice_coef_with_mauer(y_true, y_pred):
     smooth = 1e-8
-    y_true_mask = y_true[:,0,:,:,:,0]
+    y_true_mask = y_true[:,0,:,:,:]
     w = 1 / (tensorflow.einsum('bhwc->bc', y_true_mask) + 1e-10)**2
     intersection = w * tensorflow.einsum('bwhc, bwhc->bc', y_true_mask, y_pred)
     areas = w * ( tensorflow.einsum('bwhc->bc', y_true_mask) + tensorflow.einsum('bwhc->bc', y_pred) )
@@ -44,7 +44,7 @@ def combined_surface_gDice_loss_with_mauer(y_true, y_pred):
 
 def dice_coef_with_mauer(y_true, y_pred):
     smooth = 1e-8
-    y_true_mask = y_true[:,0,:,:,:,0]
+    y_true_mask = y_true[:,0,:,:,:]
     y_true_f = K.flatten(y_true_mask)
     y_pred_f = K.flatten(y_pred)
     intersection = K.sum(y_true_f * y_pred_f)
