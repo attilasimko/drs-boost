@@ -1,5 +1,7 @@
 import argparse
 parser = argparse.ArgumentParser(description='Welcome.')
+parser.add_argument("--log_comet", default=True, help="Log online on comet.ml. Default is True.")
+parser.add_argument("--gpu", default=0, help="GPU to use for training on the cluster. Default is 0.")
 parser.add_argument("--name", required=True, help="Name your experiment to help with online tracking.")
 parser.add_argument("--data", default=None, help="Name your experiment to help with online tracking.")
 parser.add_argument("--inputs", default=None, help="The field(s) to use as input(s) to the model. Multiple fields should be comma-separated.")
@@ -9,8 +11,6 @@ parser.add_argument("--loss", default="mse", help="String definition of loss to 
 parser.add_argument("--metric", default="mse", help="String definition of metric to use during validation.")
 parser.add_argument("--num_epochs", default=None, help="Set the maximum number of epochs. Default is infinity.")
 parser.add_argument("--num_opt", default=10, help="Set the number of optimization steps. Default is 10.")
-parser.add_argument("--gpu", default=0, help="GPU to use for training on the cluster. Default is 0.")
-parser.add_argument("--log_comet", default=True, help="Log online on comet.ml. Default is True.")
 args = parser.parse_args()
 name = args.name
 log_comet = args.log_comet
