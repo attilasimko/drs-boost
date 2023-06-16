@@ -9,7 +9,6 @@ parser.add_argument("--loss", default="mse", help="String definition of loss to 
 parser.add_argument("--metric", default="mse", help="String definition of metric to use during validation.")
 parser.add_argument("--num_epochs", default=None, help="Set the maximum number of epochs. Default is infinity.")
 parser.add_argument("--num_opt", default=10, help="Set the number of optimization steps. Default is 10.")
-parser.add_argument("--batch_size", default=1, help="Batch size to use during training. Default is 1.")
 parser.add_argument("--gpu", default=0, help="GPU to use for training on the cluster. Default is 0.")
 parser.add_argument("--log_comet", default=True, help="Log online on comet.ml. Default is True.")
 args = parser.parse_args()
