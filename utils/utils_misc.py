@@ -128,12 +128,12 @@ def evaluate(experiment, model, gen, eval_type):
     for i, data in enumerate(gen):
         x = data[0]
         y = data[1]
-        y = np.stack(y, 1)
         if (experiment.get_parameter("name") == "erik"):
+            y = np.stack(y, 1)
             y = y[:, :, 0, 0, 0] # Erik HC
         pred = model.predict_on_batch(x)
-        loss = np.abs(pred - y)
-        loss_list.extend([np.mean(loss)])
+        for i in range(len(y)):
+            loss_list.extend([np.mean(np.abs(pred[i] - y[i]))])
 
     experiment.log_metrics({eval_type + "_loss": np.mean(loss_list)})
     return np.mean(loss_list)
@@ -141,24 +141,35 @@ def evaluate(experiment, model, gen, eval_type):
 def plot_results(experiment, model, gen):
     import numpy as np
     import matplotlib.pyplot as plt
-    model_type = experiment.get_parameter("model")
+    experiment_name = experiment.get_parameter("name")
     inputs = experiment.get_parameter("inputs").split(',')
     outputs = experiment.get_parameter("outputs").split(',')
     plot_idx = 0
     plot_num = 10
     for i, data in enumerate(gen):
         if (plot_idx <= plot_num):
-            if (model_type == "resnet"):
+            if (experiment_name == "erik"):
                 if (data[1][0][0, 0, 0, 0] == 1):
                     continue
 
             plot_idx += 1
             y = data[1]
-            y = np.stack(y, 1)
-            if (experiment.get_parameter("name") == "erik"):
-                y = y[:, :, 0, 0, 0] # Erik HC
             x = data[0]
             pred = model.predict_on_batch(x)
+
+            if (experiment_name == "william"): # William HC
+                for i in range(len(x)):
+                    x[i] = np.expand_dims(x[i][:, 16, :, :], -1)
+
+                for i in range(len(y)):
+                    y[i] = np.expand_dims(y[i][:, 0, 16, :, :], -1)
+                
+                for i in range(len(pred)):
+                    pred[i] = np.expand_dims(pred[i][:, 16, :, :], -1)
+                    
+            elif (experiment.get_parameter("name") == "erik"):
+                y = np.stack(y, 1)
+                y = y[:, :, 0, 0, 0] # Erik HC
 
             x_num = len(x)
             plt.clf()
@@ -170,13 +181,13 @@ def plot_results(experiment, model, gen):
                 plt.xticks([])
                 plt.yticks([])
 
-            if (model_type == "resnet"):
+            if (experiment_name == "erik"):
                 y_num = 1
             else:
                 y_num = len(y)
             for idx in range(y_num):
                 plt.subplot(3, y_num, y_num + idx + 1)
-                if (model_type == "resnet"):
+                if (experiment_name == "erik"):
                     plt.imshow(pred[0:1, :], vmin=0, vmax=1, cmap='gray')
                     plt.title(f"Prediction: {str.join(', ', outputs)}")
                 else:
@@ -188,7 +199,7 @@ def plot_results(experiment, model, gen):
 
             for idx in range(y_num):
                 plt.subplot(3, y_num, y_num + y_num + idx + 1)
-                if (model_type == "resnet"):
+                if (experiment_name == "erik"):
                     plt.imshow(y[0:1, :], vmin=0, vmax=1, cmap='gray')
                     plt.title(f"Ground truth: {str.join(', ', outputs)}")
                 else:
