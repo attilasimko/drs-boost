@@ -237,14 +237,18 @@ def export_weights_to_hero(model, experiment, save_path, name):
     import os
 
     os.mkdir(save_path + name)
-    full_model = function(lambda x: model(x)) 
-    full_model = full_model.get_concrete_function([TensorSpec(x.shape, x.dtype) for x in model.inputs])
-    # Get frozen ConcreteFunction
-    frozen_func = convert_variables_to_constants_v2(full_model)
-    frozen_func.graph.as_graph_def()
-    io.write_graph(graph_or_graph_def=frozen_func.graph,
-                    logdir=save_path + name,
-                    name=f'HERO_version.pb',
-                    as_text=False)
-    experiment.log_model("hero_model", save_path + name)
+    try:
+        full_model = function(lambda x: model(x)) 
+        full_model = full_model.get_concrete_function([TensorSpec(x.shape, x.dtype) for x in model.inputs])
+        # Get frozen ConcreteFunction
+        frozen_func = convert_variables_to_constants_v2(full_model)
+        frozen_func.graph.as_graph_def()
+        io.write_graph(graph_or_graph_def=frozen_func.graph,
+                        logdir=save_path + name,
+                        name=f'HERO_version.pb',
+                        as_text=False)
+        experiment.log_model("hero_model", save_path + name)
+    except Exception as e:
+        print("ERROR: Could not export HERO model. Message:" + str(e))
+
     return
