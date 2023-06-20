@@ -23,8 +23,8 @@ class ResNetModel(BaseModel):
                 "spec": {"maxCombo": num_opt, "objective": "minimize", "metric": "val_loss"},
                 "parameters": {
                     "optimizer": {"type": "categorical", "values": ["Adam", "SGD", "RMSprop"]},
-                    "learning_rate": {"type": "float", "scalingType": "loguniform", "min": 0.0000001, "max": 0.01},
-                    "num_filters": {"type": "integer", "min": 8, "max": 64},
+                    "learning_rate": {"type": "float", "scalingType": "loguniform", "min": 0.00000001, "max": 0.01},
+                    "num_filters": {"type": "integer", "min": 2, "max": 12},
                     "dropout_rate": {"type": "float", "min": 0.0, "max": 0.6},
                     "batch_size": {"type": "discrete", "values": [4, 8, 16, 32]},
                 },
