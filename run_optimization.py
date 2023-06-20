@@ -11,6 +11,7 @@ parser.add_argument("--loss", default="mse", help="String definition of loss to 
 parser.add_argument("--metric", default="mse", help="String definition of metric to use during validation.")
 parser.add_argument("--num_epochs", default=None, help="Set the maximum number of epochs. Default is infinity.")
 parser.add_argument("--num_opt", default=10, help="Set the number of optimization steps. Default is 10.")
+parser.add_argument("--patience", default=20, help="Set the patience for each optimization on the validation data. Default is 20.")
 args = parser.parse_args()
 name = args.name
 log_comet = args.log_comet
@@ -21,6 +22,7 @@ metric = args.metric
 input_array = args.inputs
 output_array = args.outputs
 model_array = args.models.split(',')
+patience_thr = int(args.patience)
 
 import comet_ml
 comet_ml.init(api_key="ro9UfCMFS2O73enclmXbXfJJj", project_name=name, workspace="attilasimko")
@@ -102,7 +104,6 @@ for model_name in model_array:
         
         min_loss = np.inf
         patience = 0
-        patience_thr = 20
         epoch = 0
         while (epoch < num_epochs):
             train_loss, val_metric = model_class.train(model, experiment, gen_train, gen_val, epoch)
