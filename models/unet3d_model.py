@@ -130,7 +130,7 @@ class UNet3DModel(BaseModel):
         conv6 = UNet3DModel.upLayer(conv5, conv2_b_m, sfs*8, 6, bn, do)
         conv7 = UNet3DModel.upLayer(conv6, conv1_b_m, sfs*4, 7, bn, do)
         conv_out = Conv3D(len(generator.outputs), (1, 1, 1), name='conv_final_softmax')(conv7)
-        conv_out = tf.keras.activations.softmax(conv_out, axis=-1)
+        conv_out = tf.nn.softmax(conv_out, axis=-1)
 
         outputs = []
         for i in range(len(generator.outputs)):

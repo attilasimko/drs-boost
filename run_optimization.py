@@ -95,7 +95,6 @@ for model_name in model_array:
         model_class.get_summary(model, experiment)
         model_class.compile_model(model, experiment)
 
-
         print("\nTraining...")
         if (utils_misc.memory_check(experiment, model) == False):
             print("Not enough memory to train this model, skipping to next model.")
