@@ -162,7 +162,7 @@ class ResNetModel(BaseModel):
         for i, data in enumerate(gen_train):
             x = data[0]
             y = data[1]
-            loss = model.train_on_batch(x, y)
+            loss, _ = model.train_on_batch(x, y)
             train_loss.append(loss)
         toc = time.perf_counter()
         experiment.log_metrics({"epoch_time": toc - tic}, epoch=epoch)
