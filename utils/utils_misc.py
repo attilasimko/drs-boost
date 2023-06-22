@@ -128,9 +128,6 @@ def evaluate(experiment, model, gen, eval_type):
     for i, data in enumerate(gen):
         x = data[0]
         y = data[1]
-        if (experiment.get_parameter("name") == "erik"):
-            y = np.stack(y, 1)
-            y = y[:, :, 0, 0, 0] # Erik HC
         pred = model.predict_on_batch(x)
         for i in range(len(y)):
             loss_list.extend([np.mean(np.abs(pred[i] - y[i]))])
@@ -149,7 +146,7 @@ def plot_results(experiment, model, gen):
     for i, data in enumerate(gen):
         if (plot_idx <= plot_num):
             if (experiment_name == "erik"):
-                if (data[1][0][0, 0, 0, 0] == 1):
+                if (data[1][0][0] == 1):
                     continue
 
             plot_idx += 1
@@ -166,11 +163,7 @@ def plot_results(experiment, model, gen):
                 
                 for i in range(len(pred)):
                     pred[i] = np.expand_dims(pred[i][:, 16, :, :], -1)
-                    
-            elif (experiment.get_parameter("name") == "erik"):
-                y = np.stack(y, 1)
-                y = y[:, :, 0, 0, 0] # Erik HC
-
+                  
             x_num = len(x)
             plt.clf()
             for idx in range(x_num):
@@ -181,31 +174,26 @@ def plot_results(experiment, model, gen):
                 plt.xticks([])
                 plt.yticks([])
 
-            if (experiment_name == "erik"):
-                y_num = 1
-            else:
-                y_num = len(y)
+            y_num = len(y)
             for idx in range(y_num):
                 plt.subplot(3, y_num, y_num + idx + 1)
                 if (experiment_name == "erik"):
-                    plt.imshow(pred[0:1, :], vmin=0, vmax=1, cmap='gray')
-                    plt.title(f"Prediction: {str.join(', ', outputs)}")
+                    plt.imshow(np.expand_dims(pred[idx][0:1], -1), vmin=0, vmax=1, cmap='gray')
                 else:
                     plt.imshow(pred[idx][0, :, :, 0], cmap='gray')
-                    plt.title(outputs[idx])
-                    plt.colorbar()
+                plt.colorbar()
+                plt.title(outputs[idx])
                 plt.xticks([])
                 plt.yticks([])
 
             for idx in range(y_num):
                 plt.subplot(3, y_num, y_num + y_num + idx + 1)
                 if (experiment_name == "erik"):
-                    plt.imshow(y[0:1, :], vmin=0, vmax=1, cmap='gray')
-                    plt.title(f"Ground truth: {str.join(', ', outputs)}")
+                    plt.imshow(y[idx][0, ...], vmin=0, vmax=1, cmap='gray')
                 else:
                     plt.imshow(y[idx][0, :, :, 0], cmap='gray')
-                    plt.title(outputs[idx])
-                    plt.colorbar()
+                plt.colorbar()
+                plt.title(outputs[idx])
                 plt.xticks([])
                 plt.yticks([])
             experiment.log_figure(figure=plt, figure_name="results_" + str(i), overwrite=True)

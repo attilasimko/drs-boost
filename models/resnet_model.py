@@ -143,8 +143,12 @@ class ResNetModel(BaseModel):
         x = Dropout(dropout_rate)(x)
         x = Dense(64, activation='relu')(x)
         x = Dense(12, activation='relu')(x)
-        outputs = Dense(len(generator.outputs), activation="softmax")(x)
+        x = Dense(len(generator.outputs), activation="softmax")(x)
         
+        outputs = []
+        for i in range(len(generator.outputs)):
+            outputs.append(x[:, i])
+
         model = Model(inputs, outputs)
         return model
 
@@ -158,8 +162,6 @@ class ResNetModel(BaseModel):
         for i, data in enumerate(gen_train):
             x = data[0]
             y = data[1]
-            y = np.stack(y, 1)
-            y = y[:, :, 0, 0, 0]
             loss = model.train_on_batch(x, y)
             train_loss.append(loss)
         toc = time.perf_counter()
