@@ -120,7 +120,7 @@ def get_dataset_path(experiment, task):
     
     return data_path
     
-def evaluate(experiment, model, gen, eval_type):
+def evaluate(experiment, model, gen, eval_type, fn):
     import numpy as np
     from tensorflow.keras.utils import OrderedEnqueuer
     
@@ -130,7 +130,7 @@ def evaluate(experiment, model, gen, eval_type):
         y = data[1]
         pred = model.predict_on_batch(x)
         for i in range(len(y)):
-            loss_list.extend([np.mean(np.abs(pred[i] - y[i]))])
+            loss_list.extend([fn(y[i], pred[i])])
 
     experiment.log_metrics({eval_type + "_loss": np.mean(loss_list)})
     return np.mean(loss_list)

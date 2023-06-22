@@ -101,8 +101,10 @@ class BaseModel(ABC):
             print("Optimizer: RMSprop")
             model.compile(optimizer=RMSprop(experiment.get_parameter("learning_rate")), loss=loss, metrics=metric)
 
-        print(f"Training loss: {loss}")
-        print(f"Validation metric: {metric}")
+        print(f"Training loss: {loss.__name__}")
+        print(f"Validation metric: {metric.__name__}")
+
+        return loss, metric
 
     def eval(self):
         """Make models eval mode during test time"""

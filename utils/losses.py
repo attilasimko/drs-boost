@@ -6,13 +6,13 @@ def get_loss(loss_name):
     if (loss_name == "surface_loss_with_mauer"):
         return surface_loss_with_mauer
     
-    return loss_name
+    return tensorflow.keras.losses.get(loss_name)
 
 def get_metric(metric_name):
     if (metric_name == "dice_loss"):
         return dice_loss
     
-    return metric_name
+    return tensorflow.keras.metrics.get(metric_name)
 
 def surface_loss_with_mauer(y_true, y_pred):
     mask = y_true[:,0,:,:,:]
