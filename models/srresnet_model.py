@@ -173,7 +173,7 @@ class SRResNetModel(BaseModel):
             for i, data in enumerate(gen_train):
                 y = np.expand_dims(data[0].numpy(), 3)
                 x = np.expand_dims(data[1].numpy(), 3)
-                loss, _ = model.train_on_batch(x, y)
+                loss = model.train_on_batch(x, y)
                 train_loss.append(loss)
 
             toc = time.perf_counter()
