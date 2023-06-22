@@ -104,8 +104,6 @@ class BaseModel(ABC):
         print(f"Training loss: {loss.__name__}")
         print(f"Validation metric: {metric.__name__}")
 
-        return loss, metric
-
     def eval(self):
         """Make models eval mode during test time"""
         for name in self.model_names:

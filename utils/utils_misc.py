@@ -120,9 +120,11 @@ def get_dataset_path(experiment, task):
     
     return data_path
     
-def evaluate(experiment, model, gen, eval_type, fn):
+def evaluate(experiment, model, gen, eval_type):
     import numpy as np
     from tensorflow.keras.utils import OrderedEnqueuer
+    from losses import get_metric
+    fn = get_metric(experiment.get_parameter("metric"))
     
     loss_list = []
     for i, data in enumerate(gen):

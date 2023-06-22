@@ -93,12 +93,12 @@ for model_name in model_array:
         model = model_class.build(experiment, gen_train)
         
         model_class.get_summary(model, experiment)
-        loss, metric = model_class.compile_model(model, experiment)
+        model_class.compile_model(model, experiment)
 
         print("\nTraining...")
         if (utils_misc.memory_check(experiment, model) == False):
             print("Not enough memory to train this model, skipping to next model.")
-            val_metric = utils_misc.evaluate(experiment, model, gen_val, "val", metric)
+            val_metric = utils_misc.evaluate(experiment, model, gen_val, "val")
             continue
         
         min_loss = np.inf
@@ -127,7 +127,7 @@ for model_name in model_array:
         # How well did it do?
         print("Plotting, evaluating, exporting weights...")
         utils_misc.plot_results(experiment, model, gen_val)
-        utils_misc.evaluate(experiment, model, gen_test, "test", metric)
+        utils_misc.evaluate(experiment, model, gen_test, "test")
         utils_misc.export_weights_to_hero(model, experiment, data_path + "temp/", f"{experiment.get_parameter('model')}_{experiment_idx}")
         experiment_idx += 1
         experiment.end()

@@ -161,7 +161,7 @@ class SRResNetModel(BaseModel):
         import time
         
         if (utils_misc.memory_check(experiment, model) == False):
-            val_score = utils_misc.evaluate(experiment, model, gen_val, "val", task)
+            val_score = utils_misc.evaluate(experiment, model, gen_val, "val")
             return
         
         min_loss = np.inf
@@ -180,7 +180,7 @@ class SRResNetModel(BaseModel):
             experiment.log_metrics({"training_loss": np.mean(train_loss),
                                     "epoch_time": toc - tic}, epoch=epoch)
 
-            val_score = utils_misc.evaluate(experiment, model, gen_val, "val", task)
+            val_score = utils_misc.evaluate(experiment, model, gen_val, "val")
             if (val_score < min_loss):
                 patience = 0
                 min_loss = val_score
