@@ -84,16 +84,10 @@ class UNet3DModel(BaseModel):
         bn = experiment.get_parameter("batch_normalization") == "True"
         do = float(experiment.get_parameter("dropout_rate"))
 
-        x_skip = []
-        outputs = []
         inputs = []
         for i in range(len(generator.inputs)):
             inputs.append(Input(shape=tuple([item for sublist in [np.array(generator.in_dims[i][1:]), [1]] for item in sublist])))
         input = Concatenate()(inputs)
-
-        for i in range(len(generator.outputs)):
-            outputs.append(Input(shape=tuple([item for sublist in [np.array(generator.out_dims[i][1:]), [1]] for item in sublist])))
-        output = Concatenate()(outputs)
         
         # self, nrInputChannels=1, learningRate=5e-5, bn = True, do = False, opti = Adam, n_imgs=1):
         sfs = int(experiment.get_parameter("num_filters")) # start filter size
@@ -129,12 +123,11 @@ class UNet3DModel(BaseModel):
             conv5 = BatchNormalization()(conv5)
         conv6 = UNet3DModel.upLayer(conv5, conv2_b_m, sfs*8, 6, bn, do)
         conv7 = UNet3DModel.upLayer(conv6, conv1_b_m, sfs*4, 7, bn, do)
-        conv_out = Conv3D(len(generator.outputs), (1, 1, 1), name='conv_final_softmax')(conv7)
-        conv_out = tf.nn.softmax(conv_out, axis=-1)
+        conv_out = Conv3D(len(generator.outputs), (1, 1, 1), activation='softmax', name='conv_final_softmax')(conv7)
 
         outputs = []
         for i in range(len(generator.outputs)):
-            outputs.append(Lambda(lambda x: x[:, :, :, :, i], name=generator.outputs[i])(conv_out))
+            outputs.append(conv_out[:, :, :, :, i])
             
         model = Model(inputs=[inputs], outputs=outputs)
 
