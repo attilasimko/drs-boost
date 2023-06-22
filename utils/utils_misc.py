@@ -123,7 +123,7 @@ def get_dataset_path(experiment, task):
 def evaluate(experiment, model, gen, eval_type):
     import numpy as np
     from tensorflow.keras.utils import OrderedEnqueuer
-    from losses import get_metric
+    from utils.losses import get_metric
     fn = get_metric(experiment.get_parameter("metric"))
     
     loss_list = []
