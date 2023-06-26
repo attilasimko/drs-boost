@@ -51,4 +51,4 @@ def dice_coef_with_mauer(y_true, y_pred):
     return (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
 
 def dice_loss(y_true, y_pred):
-    return 1-dice_coef_with_mauer(y_true, y_pred)
+    return -dice_coef_with_mauer(y_true, y_pred)

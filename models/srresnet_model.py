@@ -2,10 +2,11 @@ from . base_model import BaseModel
 import math
 
 class SRResNetModel(BaseModel):
-    config = {
+    def get_config(num_opt):
+        return {
                 "algorithm": "bayes",
                 "name": "SRResNet",
-                "spec": {"maxCombo": 50, "objective": "minimize", "metric": "val_loss"},
+                "spec": {"maxCombo": num_opt, "objective": "minimize", "metric": "val_loss"},
                 "parameters": {
                     "optimizer": {"type": "categorical", "values": ["Adam", "SGD", "RMSprop"]},
                     "learning_rate": {"type": "float", "scalingType": "loguniform", "min": 0.0000001, "max": 0.0005},
