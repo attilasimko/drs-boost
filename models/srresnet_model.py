@@ -6,7 +6,7 @@ class SRResNetModel(BaseModel):
         return {
                 "algorithm": "bayes",
                 "name": "SRResNet",
-                "spec": {"maxCombo": num_opt, "objective": "minimize", "metric": "val_loss"},
+                "spec": {"maxCombo": 0, 'retryLimit': num_opt, "objective": "minimize", "metric": "val_loss"},
                 "parameters": {
                     "optimizer": {"type": "categorical", "values": ["Adam", "SGD", "RMSprop"]},
                     "learning_rate": {"type": "float", "scalingType": "loguniform", "min": 0.0000001, "max": 0.0005},
