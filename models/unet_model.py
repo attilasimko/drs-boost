@@ -148,22 +148,25 @@ class UNetModel(BaseModel):
         out = Conv2D(output.shape[-1], 3, activation='relu', padding='same', kernel_initializer='he_normal')(ublock)
         out = Conv2D(output.shape[-1], 1, padding='same', kernel_initializer='he_normal')(out)
         
+        if (experiment.get_parameter('name') == "gerd"):
+            out = Activation('softmax')(out)
+
         outputs = []
         start_idx = 0
         for i in range(len(generator.outputs)):
             current_out = out[:, :, :, start_idx:start_idx+generator.out_dims[i][1]]
             if (generator.output_types[i] == np.bool):
                 print(f"Applying sigmoid activation to Output {i}.")
-                out = Activation('sigmoid')(out)
+                out = Activation('sigmoid')(current_out)
             elif (generator.output_types[i] == "znorm"):
                 print(f"Applying Z-Normalization activation to Output {i}.")
-                out = Activation(UNetModel.znorm)(out)
+                out = Activation(UNetModel.znorm)(current_out)
             elif (generator.output_types[i] == "-11_range"):
                 print(f"Applying [-1, 1] range activation to Output {i}.")
-                out = Activation(UNetModel.sct_range)(out)
+                out = Activation(UNetModel.sct_range)(current_out)
             elif (generator.output_types[i] == "relu"):
                 print(f"Applying ReLU activation to Output {i}.")
-                out = Activation('relu')(out)
+                out = Activation('relu')(current_out)
             outputs.append(out)
         
         model = Model(inputs, outputs)
