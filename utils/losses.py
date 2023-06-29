@@ -3,23 +3,11 @@ from keras import backend as K
 K.set_image_data_format('channels_last')  # TF dimension ordering in this code
 
 def data_adaptive_loss(y_true, y_pred):
-    l = 0.0
-    p = 0
-    for i in range(len(y_true)):
-        l_i, p_i = data_adaptive_class_loss(tensorflow.cast(y_true[i], dtype=tensorflow.float32), y_pred[i])
-        l += l_i
-        p += p_i
-
+    l, p = data_adaptive_class_loss(tensorflow.cast(y_true, dtype=tensorflow.float32), y_pred)
     return l/(tensorflow.cast((p), dtype=tensorflow.float32))
 
 def data_adaptive_dice_metric(y_true, y_pred):
-    l = 0.0
-    p = 0
-    for i in range(len(y_true)):
-        l_i, p_i = data_adaptive_class_loss(tensorflow.cast(y_true[i], dtype=tensorflow.float32), y_pred[i], 0)
-        l += l_i
-        p += p_i
-        
+    l, p = data_adaptive_class_loss(tensorflow.cast(y_true[i], dtype=tensorflow.float32), y_pred[i], 0)
     return l/(tensorflow.cast((p), dtype=tensorflow.float32))
 
 def data_adaptive_class_loss(y_true, y_pred, delta=0.5):
