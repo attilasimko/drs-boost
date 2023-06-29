@@ -148,7 +148,7 @@ class UNetModel(BaseModel):
         out = Conv2D(output.shape[-1], 3, activation='relu', padding='same', kernel_initializer='he_normal')(ublock)
         out = Conv2D(output.shape[-1], 1, padding='same', kernel_initializer='he_normal')(out)
         
-        if (generator.output_types == np.bool).all():
+        if (np.all([out_type == np.bool for out_type in generator.output_types])):
             out = Activation('softmax')(out)
 
         outputs = []
