@@ -4,11 +4,11 @@ K.set_image_data_format('channels_last')  # TF dimension ordering in this code
 
 def data_adaptive_loss(y_true, y_pred):
     l, p = data_adaptive_class_loss(tensorflow.cast(y_true, dtype=tensorflow.float32), y_pred)
-    return l/(tensorflow.cast((p), dtype=tensorflow.float32))
+    return l/(tensorflow.cast((p+1), dtype=tensorflow.float32))
 
 def data_adaptive_dice_metric(y_true, y_pred):
     l, p = data_adaptive_class_loss(tensorflow.cast(y_true, dtype=tensorflow.float32), y_pred, 0)
-    return l/(tensorflow.cast((p), dtype=tensorflow.float32))
+    return l/(tensorflow.cast((p+1), dtype=tensorflow.float32))
 
 def data_adaptive_class_loss(y_true, y_pred, delta=0.5):
     # Batch size
