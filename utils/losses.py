@@ -5,8 +5,8 @@ K.set_image_data_format('channels_last')  # TF dimension ordering in this code
 def data_adaptive_loss(y_true, y_pred):
     l = 0.0
     p = 0
-    for i in range(y_true.shape[3]):
-        l_i, p_i = data_adaptive_class_loss(tensorflow.cast(y_true[:,:,:,i], dtype=tensorflow.float32), y_pred[:,:,:,i])
+    for i in range(len(y_true)):
+        l_i, p_i = data_adaptive_class_loss(tensorflow.cast(y_true[i], dtype=tensorflow.float32), y_pred[i])
         l += l_i
         p += p_i
 
@@ -15,21 +15,22 @@ def data_adaptive_loss(y_true, y_pred):
 def data_adaptive_dice_metric(y_true, y_pred):
     l = 0.0
     p = 0
-    for i in range(y_true.shape[3]):
-        l_i, p_i = data_adaptive_class_loss(tensorflow.cast(y_true[:,:,:,i], dtype=tensorflow.float32), y_pred[:,:,:,i], 0)
+    for i in range(len(y_true)):
+        l_i, p_i = data_adaptive_class_loss(tensorflow.cast(y_true[i], dtype=tensorflow.float32), y_pred[i], 0)
         l += l_i
         p += p_i
         
     return l/(tensorflow.cast((p), dtype=tensorflow.float32))
 
 def data_adaptive_class_loss(y_true, y_pred, delta=0.5):
+    # Batch size
     s = K.shape(y_true)[0]
     # Weight
-    w = y_true[:,0,0]
+    w = y_true[:,0,0,0]
     # Set weight to zero
-    z = K.zeros_like(y_true[:,:,0:1])
-    y_part = y_true[:,:,1:]
-    y_true = K.concatenate([z, y_part])
+    z = K.zeros_like(y_true[:,:,0:1,:])
+    y_part = y_true[:,:,1:,:]
+    y_true = K.concatenate([z, y_part], axis=2)
     # How many times the mask accures
     a = K.sum(w)
     # Chech if masks are present at all

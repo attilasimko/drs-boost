@@ -144,7 +144,7 @@ class UNetModel(BaseModel):
         
         ublock = x_skip[0][0]
         for i in range(int(np.log2(output.shape[1] / x_skip[0][1].shape[1]))):
-            ublock = UNetModel.decoding_block(ublock, x_skip[i+1][1], int(ublock.shape[-1] / (2**i)))
+            ublock = UNetModel.decoding_block(ublock, x_skip[i+1][1], int(x_skip[i][0].shape[-1]))
         out = Conv2D(output.shape[-1], 3, activation='relu', padding='same', kernel_initializer='he_normal')(ublock)
         out = Conv2D(output.shape[-1], 1, padding='same', kernel_initializer='he_normal')(out)
         
@@ -154,20 +154,21 @@ class UNetModel(BaseModel):
         outputs = []
         start_idx = 0
         for i in range(len(generator.outputs)):
-            current_out = out[:, :, :, start_idx:start_idx+generator.out_dims[i][1]]
+            current_out = out[:, :, :, start_idx:start_idx+generator.out_dims[i][3]]
+            start_idx += generator.out_dims[i][3]
             if (generator.output_types[i] == np.bool):
                 print(f"Applying sigmoid activation to Output {i}.")
-                out = Activation('sigmoid')(current_out)
+                out_i = Activation('sigmoid')(current_out)
             elif (generator.output_types[i] == "znorm"):
                 print(f"Applying Z-Normalization activation to Output {i}.")
-                out = Activation(UNetModel.znorm)(current_out)
+                out_i = Activation(UNetModel.znorm)(current_out)
             elif (generator.output_types[i] == "-11_range"):
                 print(f"Applying [-1, 1] range activation to Output {i}.")
-                out = Activation(UNetModel.sct_range)(current_out)
+                out_i = Activation(UNetModel.sct_range)(current_out)
             elif (generator.output_types[i] == "relu"):
                 print(f"Applying ReLU activation to Output {i}.")
-                out = Activation('relu')(current_out)
-            outputs.append(out)
+                out_i = Activation('relu')(current_out)
+            outputs.append(out_i)
         
         model = Model(inputs, outputs)
         return model
