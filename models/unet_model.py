@@ -148,7 +148,7 @@ class UNetModel(BaseModel):
         out = Conv2D(output.shape[-1], 3, activation='relu', padding='same', kernel_initializer='he_normal')(ublock)
         out = Conv2D(output.shape[-1], 1, padding='same', kernel_initializer='he_normal')(out)
         
-        if (experiment.get_parameter('name') == "gerd"):
+        if (generator.output_types == np.bool).all():
             out = Activation('softmax')(out)
 
         outputs = []
