@@ -4,7 +4,7 @@ K.set_image_data_format('channels_last')  # TF dimension ordering in this code
 
 def data_adaptive_loss(y_true, y_pred):
     l = 0.0
-    p = 0.0
+    p = 0
     for i in range(y_true.shape[3]):
         l_i, p_i = data_adaptive_class_loss(tensorflow.cast(y_true[:,:,:,i], dtype=tensorflow.float32), y_pred[:,:,:,i])
         l += l_i
@@ -14,7 +14,7 @@ def data_adaptive_loss(y_true, y_pred):
 
 def data_adaptive_dice_metric(y_true, y_pred):
     l = 0.0
-    p = 0.0
+    p = 0
     for i in range(y_true.shape[3]):
         l_i, p_i = data_adaptive_class_loss(tensorflow.cast(y_true[:,:,:,i], dtype=tensorflow.float32), y_pred[:,:,:,i], 0)
         l += l_i
