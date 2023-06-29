@@ -144,7 +144,7 @@ class UNetModel(BaseModel):
         
         ublock = x_skip[0][0]
         for i in range(int(np.log2(output.shape[1] / x_skip[0][1].shape[1]))):
-            ublock = UNetModel.decoding_block(ublock, x_skip[i+1][1], ublock.shape[-1] / (2**i))
+            ublock = UNetModel.decoding_block(ublock, x_skip[i+1][1], int(ublock.shape[-1] / (2**i)))
         out = Conv2D(output.shape[-1], 3, activation='relu', padding='same', kernel_initializer='he_normal')(ublock)
         out = Conv2D(output.shape[-1], 1, padding='same', kernel_initializer='he_normal')(out)
         
