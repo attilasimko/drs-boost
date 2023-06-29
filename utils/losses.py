@@ -2,15 +2,71 @@ import tensorflow
 from keras import backend as K
 K.set_image_data_format('channels_last')  # TF dimension ordering in this code
 
+def data_adaptive_loss(y_true, y_pred):
+    l = 0.0
+    p = 0.0
+    for i in range(y_true.shape[3]):
+        l_i, p_i = data_adaptive_class_loss(y_true[:,:,:,i], y_pred[:,:,:,i])
+        l += l_i
+        p += p_i
+
+    return l/(tensorflow.cast((p), dtype=tensorflow.float32))
+
+def data_adaptive_dice_metric(y_true, y_pred):
+    l = 0.0
+    p = 0.0
+    for i in range(y_true.shape[3]):
+        l_i, p_i = data_adaptive_class_loss(y_true[:,:,:,i], y_pred[:,:,:,i], 0)
+        l += l_i
+        p += p_i
+        
+    return l/(tensorflow.cast((p), dtype=tensorflow.float32))
+
+def data_adaptive_class_loss(y_true, y_pred, delta=0.5):
+    s = K.shape(y_true)[0]
+    # Weight
+    w = y_true[:,0,0]
+    # Set weight to zero
+    z = K.zeros_like(y_true[:,:,0:1])
+    y_part = y_true[:,:,1:]
+    y_true = K.concatenate([z, y_part])
+    # How many times the mask accures
+    a = K.sum(w)
+    # Chech if masks are present at all
+    p = K.switch(K.equal(a,0), 0, 1)
+    # Calculating loss
+    y_true_f = K.reshape(y_true, (s, -1))
+    y_pred_f = K.reshape(y_pred, (s, -1))
+    l = (delta*(1.-data_adaptive_dice_part(y_true_f, y_pred_f))) + ((1-delta)*data_adaptive_binary_crossentropy_part(y_true_f, y_pred_f))
+    # Set loss to zero if mask does not excist
+    l = w*l
+    # Sum and div by number of present masks
+    l = K.sum(l)/(a + K.epsilon())
+    return l, p
+
+def data_adaptive_dice_part(y_true, y_pred):
+    intersection = K.sum(y_true * y_pred, axis=1)
+    values = (2. * intersection + K.epsilon()) / (K.sum(y_true, axis=1) + K.sum(y_pred,axis=1) + K.epsilon())
+    return values
+
+def data_adaptive_binary_crossentropy_part(y_true, y_pred):
+    cross = K.binary_crossentropy(y_true, y_pred)
+    m = K.mean(cross, axis=1)
+    return m
+
 def get_loss(loss_name):
     if (loss_name == "surface_loss_with_mauer"):
         return surface_loss_with_mauer
+    if (loss_name == "data_adaptive_loss"):
+        return data_adaptive_loss
     
     return tensorflow.keras.losses.get(loss_name)
 
 def get_metric(metric_name):
     if (metric_name == "dice_loss"):
         return dice_loss
+    if (metric_name == "data_adaptive_dice_metric"):
+        return data_adaptive_dice_metric
     
     return tensorflow.keras.metrics.get(metric_name)
 
