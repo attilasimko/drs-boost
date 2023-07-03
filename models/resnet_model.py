@@ -147,7 +147,7 @@ class ResNetModel(BaseModel):
         
         outputs = []
         for i in range(len(generator.outputs)):
-            outputs.append(x[:, i])
+            outputs.append(x[:, i:i+1])
 
         model = Model(inputs, outputs)
         return model
