@@ -7,7 +7,7 @@ def data_adaptive_loss(y_true, y_pred):
     return l/(tensorflow.cast((p+1), dtype=tensorflow.float32))
 
 def data_adaptive_dice_metric(y_true, y_pred):
-    l, p = data_adaptive_class_loss(tensorflow.cast(y_true, dtype=tensorflow.float32), y_pred, 0)
+    l, p = data_adaptive_class_loss(tensorflow.cast(y_true, dtype=tensorflow.float32), y_pred, 1)
     return l/(tensorflow.cast((p+1), dtype=tensorflow.float32))
 
 def data_adaptive_class_loss(y_true, y_pred, delta=0.5):
