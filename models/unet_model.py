@@ -148,15 +148,19 @@ class UNetModel(BaseModel):
         out = Conv2D(output.shape[-1], 3, activation='relu', padding='same', kernel_initializer='he_normal')(ublock)
         out = Conv2D(output.shape[-1], 1, padding='same', kernel_initializer='he_normal')(out)
         
+        use_softmax = False
         if (np.all([out_type == np.bool for out_type in generator.output_types])):
             out = Activation('softmax')(out)
+            use_softmax = True
 
         outputs = []
         start_idx = 0
         for i in range(len(generator.outputs)):
             current_out = out[:, :, :, start_idx:start_idx+generator.out_dims[i][3]]
             start_idx += generator.out_dims[i][3]
-            if (generator.output_types[i] == np.bool):
+            if (use_softmax):
+                out_i = current_out
+            elif (generator.output_types[i] == np.bool):
                 print(f"Applying sigmoid activation to Output {i}.")
                 out_i = Activation('sigmoid')(current_out)
             elif (generator.output_types[i] == "znorm"):
@@ -168,6 +172,8 @@ class UNetModel(BaseModel):
             elif (generator.output_types[i] == "relu"):
                 print(f"Applying ReLU activation to Output {i}.")
                 out_i = Activation('relu')(current_out)
+            else:
+                out_i = current_out
             outputs.append(out_i)
         
         model = Model(inputs, outputs)
