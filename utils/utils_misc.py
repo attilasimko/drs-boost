@@ -242,3 +242,19 @@ def export_weights_to_hero(model, experiment, save_path, name):
         print("ERROR: Could not export HERO model. Message:" + str(e))
 
     return
+
+
+class Timer:
+    def __init__(self):
+        self._start_time = None
+
+    def start(self):
+        import time
+        self._start_time = time.perf_counter()
+
+    def lap(self):
+        import time
+        current_time = time.perf_counter()
+        elapsed_time = current_time - self._start_time
+        self._start_time = current_time
+        return elapsed_time

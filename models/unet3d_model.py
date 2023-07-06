@@ -137,15 +137,24 @@ class UNet3DModel(BaseModel):
         import numpy as np
         import utils.utils_misc as utils_misc
         import time
-        
-        tic = time.perf_counter()
+
+        timer = utils_misc.Timer()
         train_loss = []
-        for i, data in enumerate(gen_train):
+        tic_dl = 0
+        tic_train = 0
+        timer.start()
+        for i in range(len(gen_train)):
+            data = gen_train[i]
             x = data[0]
             y = data[1]
+            tic_dl += timer.lap()
             loss = model.train_on_batch(x, y)
             train_loss.append(loss)
-        toc = time.perf_counter()
-        experiment.log_metrics({"epoch_time": toc - tic}, epoch=epoch)
+            tic_train += timer.lap()
         val_score = utils_misc.evaluate(experiment, model, gen_val, "val")
+        tic_val = timer.lap()
+        experiment.log_metrics({"dl_time": tic_dl}, epoch=epoch)
+        experiment.log_metrics({"train_time": tic_train}, epoch=epoch)
+        experiment.log_metrics({"val_time": tic_val}, epoch=epoch)
+
         return train_loss, val_score
