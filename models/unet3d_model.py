@@ -137,14 +137,18 @@ class UNet3DModel(BaseModel):
         import numpy as np
         import utils.utils_misc as utils_misc
         import time
-        tf.compat.v1.disable_eager_execution()
+        from tensorflow.keras.utils import OrderedEnqueuer
 
         timer = utils_misc.Timer()
         train_loss = []
         tic_dl = 0
         tic_train = 0
         timer.start()
-        for x, y in next(iter(gen_train.take(1))):
+        seq = OrderedEnqueuer(gen_train, use_multiprocessing=False, shuffle=False)
+        seq.start(workers=4, max_queue_size=100)
+        data_seq = seq.get()
+        for i in range(len(gen_train)):
+            x, y = next(data_seq)
             tic_dl += timer.lap()
             loss = model.train_on_batch(x, y)
             train_loss.append(loss)
