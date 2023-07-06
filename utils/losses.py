@@ -89,6 +89,13 @@ def combined_surface_gDice_loss_with_mauer(y_true, y_pred):
     loss = alpha * gDice + (1 - alpha) * w_factor * surface_loss
     return loss
 
+def dice_coef(y_true, y_pred):
+    smooth = 1e-8
+    y_true_f = K.flatten(y_true)
+    y_pred_f = K.flatten(y_pred)
+    intersection = K.sum(y_true_f * y_pred_f)
+    return (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
+
 def dice_coef_with_mauer(y_true, y_pred):
     smooth = 1e-8
     y_true_mask = y_true[:,0,:,:,:]
@@ -97,5 +104,8 @@ def dice_coef_with_mauer(y_true, y_pred):
     intersection = K.sum(y_true_f * y_pred_f)
     return (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
 
-def dice_loss(y_true, y_pred):
+def dice_loss_with_mauer(y_true, y_pred):
     return -dice_coef_with_mauer(y_true, y_pred)
+
+def dice_loss(y_true, y_pred):
+    return -dice_coef(y_true, y_pred)
