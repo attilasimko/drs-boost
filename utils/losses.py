@@ -46,6 +46,8 @@ def data_adaptive_binary_crossentropy_part(y_true, y_pred):
 def get_loss(loss_name):
     if (loss_name == "surface_loss_with_mauer"):
         return surface_loss_with_mauer
+    if (loss_name == "dice_loss"):
+        return dice_loss
     if (loss_name == "data_adaptive_loss"):
         return data_adaptive_loss
     
