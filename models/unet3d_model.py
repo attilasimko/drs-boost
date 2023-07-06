@@ -144,10 +144,7 @@ class UNet3DModel(BaseModel):
         tic_dl = 0
         tic_train = 0
         timer.start()
-        for i in range(len(gen_train)):
-            data = gen_train[i]
-            x = data[0]
-            y = data[1]
+        for x, y in next(iter(gen_train.take(1))):
             tic_dl += timer.lap()
             loss = model.train_on_batch(x, y)
             train_loss.append(loss)
