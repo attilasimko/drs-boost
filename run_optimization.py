@@ -106,6 +106,7 @@ for model_name in model_array:
         epoch = 0
         while (epoch < num_epochs):
             train_loss, val_metric = model_class.train(model, experiment, gen_train, gen_val, epoch)
+            gen_train.on_epoch_end()
             experiment.log_metrics({"training_loss": np.mean(train_loss),
                                     "val_metric": np.mean(val_metric)}, epoch=epoch)
             

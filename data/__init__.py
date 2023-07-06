@@ -1,24 +1,5 @@
 import os
-import re
-import abc
-import six
-import datetime
-
 import numpy as np
-from six import with_metaclass
-
-__all__ = ["BaseGenerator",
-           "ImageGenerator", "ArrayGenerator",
-           "Dicom3DGenerator", "DicomGenerator",
-           "Numpy2DGenerator", "Numpy3DGenerator",
-           "Dicom3DSaver"]
-
-
-import os
-import re
-import abc
-import six
-import datetime
 import tensorflow
 
 def get_activation(image):
