@@ -137,6 +137,7 @@ class UNet3DModel(BaseModel):
         import numpy as np
         import utils.utils_misc as utils_misc
         import time
+        tf.compat.v1.disable_eager_execution()
 
         timer = utils_misc.Timer()
         train_loss = []
