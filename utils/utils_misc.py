@@ -258,3 +258,11 @@ class Timer:
         elapsed_time = current_time - self._start_time
         self._start_time = current_time
         return elapsed_time
+    
+def prune_config(config, name):
+    if (name == "gerd"):
+        config["parameters"]["num_filters"] = 24
+        config["parameters"]["optimizer"] = "Adam"
+        print("Parameters pruned: num_filters = 24, optimizer = Adam")
+    
+    return config

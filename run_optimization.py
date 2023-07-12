@@ -48,7 +48,7 @@ print("Training will be done on GPU: ", gpu)
 import os
 import time
 import numpy as np
-from utils.utils_misc import setup_generators, get_array_names
+from utils.utils_misc import setup_generators, get_array_names, prune_config
 import models
 
 if (args.num_epochs is None):
@@ -72,7 +72,9 @@ if (output_array is None):
 
 for model_name in model_array:
     model = models.find_model_using_name(model_name)
-    opt_comet = comet_ml.Optimizer(model.get_config(num_opt))
+    config = model.get_config(num_opt)
+    config = prune_config(config, name)
+    opt_comet = comet_ml.Optimizer(config)
     experiment_idx = 0
     for experiment in opt_comet.get_experiments(disabled=not(log_comet)):
         experiment.log_parameter("project_name", name)
