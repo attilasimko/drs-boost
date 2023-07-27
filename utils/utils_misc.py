@@ -266,5 +266,10 @@ def prune_config(config, name):
         config["parameters"]["batch_size"] = 2
         print("Parameters pruned: num_filters = 24, optimizer = Adam, batch_size = 2")
 
-    
     return config
+
+def gpu_growth():
+    import tensorflow
+    config = tensorflow.compat.v1.ConfigProto()
+    config.gpu_options.allow_growth = True
+    sess = tensorflow.compat.v1.Session(config=config)

@@ -48,9 +48,10 @@ print("Training will be done on GPU: ", gpu)
 import os
 import time
 import numpy as np
-from utils.utils_misc import setup_generators, get_array_names, prune_config
+from utils.utils_misc import setup_generators, get_array_names, prune_config, gpu_growth
 import models
 
+gpu_growth()
 if (args.num_epochs is None):
     num_epochs = np.inf
 else:
