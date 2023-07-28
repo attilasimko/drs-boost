@@ -132,7 +132,7 @@ def evaluate(experiment, model, gen, eval_type):
         y = data[1]
         pred = model.predict_on_batch(x)
         for i in range(len(y)):
-            loss_list.extend([fn(y[i], pred[i])])
+            loss_list.extend([np.mean([fn(y[i], pred[i])])])
 
     experiment.log_metrics({eval_type + "_loss": np.mean(loss_list)})
     return np.mean(loss_list)

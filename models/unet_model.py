@@ -152,6 +152,12 @@ class UNetModel(BaseModel):
         if (np.all([out_type == np.bool for out_type in generator.output_types])):
             out = Activation('softmax')(out)
             use_softmax = True
+        
+        if (experiment.get_parameter("name") == "gerd"):
+            print("Using softmax activation for Gerd project.")
+            out = Activation('softmax')(out)
+            use_softmax = True
+
 
         outputs = []
         start_idx = 0
