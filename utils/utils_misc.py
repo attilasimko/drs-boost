@@ -201,6 +201,13 @@ def plot_results(experiment, model, gen):
             experiment.log_figure(figure=plt, figure_name="results_" + str(i), overwrite=True)
             plt.close('all')
     
+def clear_memory():
+    import gc
+    from keras import backend as K
+
+    K.clear_session()
+    gc.collect()
+
 def memory_check(experiment, model):
     # import nvidia_smi
     # import numpy as np

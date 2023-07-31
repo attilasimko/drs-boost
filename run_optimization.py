@@ -48,7 +48,7 @@ print("Training will be done on GPU: ", gpu)
 import os
 import time
 import numpy as np
-from utils.utils_misc import setup_generators, get_array_names, prune_config, gpu_growth
+from utils.utils_misc import setup_generators, get_array_names, prune_config, gpu_growth, clear_memory
 import models
 
 gpu_growth()
@@ -110,6 +110,7 @@ for model_name in model_array:
         while (epoch < num_epochs):
             train_loss, val_metric = model_class.train(model, experiment, gen_train, gen_val, epoch)
             gen_train.on_epoch_end()
+            clear_memory()
             experiment.log_metrics({"training_loss": np.mean(train_loss),
                                     "val_metric": np.mean(val_metric)}, epoch=epoch)
             
