@@ -149,7 +149,7 @@ class UNetModel(BaseModel):
         out = Conv2D(output.shape[-1], 1, padding='same', kernel_initializer='he_normal')(out)
         
         use_softmax = False
-        if (np.all([out_type == np.bool for out_type in generator.output_types])):
+        if (np.all([out_type == np.bool_ for out_type in generator.output_types])):
             out = Activation('softmax')(out)
             use_softmax = True
         
@@ -166,7 +166,7 @@ class UNetModel(BaseModel):
             start_idx += generator.out_dims[i][3]
             if (use_softmax):
                 out_i = current_out
-            elif (generator.output_types[i] == np.bool):
+            elif (generator.output_types[i] == np.bool_):
                 print(f"Applying sigmoid activation to Output {i}.")
                 out_i = Activation('sigmoid')(current_out)
             elif (generator.output_types[i] == "znorm"):
