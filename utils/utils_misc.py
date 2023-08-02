@@ -161,7 +161,7 @@ def plot_results(experiment, model, gen):
                     x[i] = np.expand_dims(x[i][:, 16, :, :], -1)
 
                 for i in range(len(y)):
-                    y[i] = np.expand_dims(y[i][:, 0, 16, :, :], -1)
+                    y[i] = np.expand_dims(y[i][:, 16, :, :], -1)
                 
                 for i in range(len(pred)):
                     pred[i] = np.expand_dims(pred[i][:, 16, :, :], -1)
