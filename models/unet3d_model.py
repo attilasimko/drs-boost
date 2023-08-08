@@ -141,7 +141,7 @@ class UNet3DModel(BaseModel):
 
         tic = time.perf_counter()
         train_loss = []
-        for i, data in range(len(gen_train)):
+        for i, data in enumerate(gen_train):
             x = data[0]
             y = data[1]
             loss = model.train_on_batch(x, y)
