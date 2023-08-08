@@ -139,24 +139,15 @@ class UNet3DModel(BaseModel):
         import time
         from tensorflow.keras.utils import OrderedEnqueuer
 
-        timer = utils_misc.Timer()
+        tic = time.perf_counter()
         train_loss = []
-        tic_dl = 0
-        tic_train = 0
-        timer.start()
-        seq = OrderedEnqueuer(gen_train, use_multiprocessing=False, shuffle=False)
-        seq.start(workers=4, max_queue_size=100)
-        data_seq = seq.get()
-        for i in range(len(gen_train)):
-            x, y = next(data_seq)
-            tic_dl += timer.lap()
+        for i, data in range(len(gen_train)):
+            x = data[0]
+            y = data[1]
             loss = model.train_on_batch(x, y)
             train_loss.append(loss)
-            tic_train += timer.lap()
+        toc = time.perf_counter()
+        experiment.log_metrics({"epoch_time": toc - tic}, epoch=epoch)
         val_score = utils_misc.evaluate(experiment, model, gen_val, "val")
-        tic_val = timer.lap()
-        experiment.log_metrics({"dl_time": tic_dl}, epoch=epoch)
-        experiment.log_metrics({"train_time": tic_train}, epoch=epoch)
-        experiment.log_metrics({"val_time": tic_val}, epoch=epoch)
 
         return train_loss, val_score
