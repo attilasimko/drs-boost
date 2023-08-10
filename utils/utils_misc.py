@@ -270,8 +270,8 @@ def prune_config(config, name):
     if (name == "gerd"):
         config["parameters"]["num_filters"] = 24
         config["parameters"]["optimizer"] = "Adam"
-        config["parameters"]["batch_size"] = 2
-        print("Parameters pruned: num_filters = 24, optimizer = Adam, batch_size = 2")
+        config["parameters"]["batch_size"] = 8
+        print("Parameters pruned: num_filters = 24, optimizer = Adam, batch_size = 8")
 
     return config
 
