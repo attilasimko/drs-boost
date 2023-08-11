@@ -84,22 +84,27 @@ class BaseModel(ABC):
 
 
     def compile_model(model, experiment):
+        import numpy as np
         from tensorflow.keras.optimizers import Adam, SGD, RMSprop
         from utils.losses import get_loss, get_metric
         loss = get_loss(experiment.get_parameter("loss"))
         metric = get_metric(experiment.get_parameter("metric"))
+        loss_weights = np.ones(len(model.outputs))
+
+        if (experiment.get_parameter("name") == "erik"):
+            loss_weights[0] = 0.02
 
         print("\nCompiling model...")
         print(f"Learning rate: {experiment.get_parameter('learning_rate')}")
         if (experiment.get_parameter("optimizer") == "Adam"): # "Adam", "SGD", "RMSprop"
             print("Optimizer: Adam")
-            model.compile(optimizer=Adam(experiment.get_parameter("learning_rate")), loss=loss, metrics=metric)
+            model.compile(optimizer=Adam(experiment.get_parameter("learning_rate")), loss=loss, metrics=metric, loss_weights=loss_weights)
         elif (experiment.get_parameter("optimizer") == "SGD"):
             print("Optimizer: SGD")
-            model.compile(optimizer=SGD(experiment.get_parameter("learning_rate")), loss=loss, metrics=metric)
+            model.compile(optimizer=SGD(experiment.get_parameter("learning_rate")), loss=loss, metrics=metric, loss_weights=loss_weights)
         elif (experiment.get_parameter("optimizer") == "RMSprop"):
             print("Optimizer: RMSprop")
-            model.compile(optimizer=RMSprop(experiment.get_parameter("learning_rate")), loss=loss, metrics=metric)
+            model.compile(optimizer=RMSprop(experiment.get_parameter("learning_rate")), loss=loss, metrics=metric, loss_weights=loss_weights)
 
         print(f"Training loss: {loss.__name__}")
         print(f"Validation metric: {metric.__name__}")
