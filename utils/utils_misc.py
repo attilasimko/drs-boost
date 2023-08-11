@@ -126,15 +126,22 @@ def evaluate(experiment, model, gen, eval_type):
     from utils.losses import get_metric
     fn = get_metric(experiment.get_parameter("metric"))
     
-    loss_list = []
-    for i, data in enumerate(gen):
+    for idx, data in enumerate(gen):
         x = data[0]
         y = data[1]
+
+        if (idx == 0):
+            loss_list = []
+            for i in range(len(y)):
+                loss_list.append([])
+
         pred = model.predict_on_batch(x)
         for i in range(len(y)):
-            loss_list.extend([np.mean([fn(y[i], pred[i])])])
+            loss_list[i].extend([np.mean([fn(y[i], pred[i])])])
 
-    experiment.log_metrics({eval_type + "_loss": np.mean(loss_list)})
+    for i in range(len(y)):
+        experiment.log_metrics({f"{eval_type}_loss_{i}": np.mean(loss_list[i])})
+
     return np.mean(loss_list)
 
 def plot_results(experiment, model, gen):
