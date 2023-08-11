@@ -89,7 +89,7 @@ class BaseModel(ABC):
         from utils.losses import get_loss, get_metric
         loss = get_loss(experiment.get_parameter("loss"))
         metric = get_metric(experiment.get_parameter("metric"))
-        loss_weights = np.ones(len(model.outputs))
+        loss_weights = list(np.ones(len(model.outputs)))
 
         if (experiment.get_parameter("name") == "erik"):
             loss_weights[0] = 0.02
