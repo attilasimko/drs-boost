@@ -43,6 +43,20 @@ def data_adaptive_binary_crossentropy_part(y_true, y_pred):
     m = K.mean(cross, axis=1)
     return m
 
+def mime_loss(y_true, y_pred):
+    import tensorflow as tf
+
+    loss = 0.0
+    mask_a = tf.not_equal(y_true, 0.0)
+    mask_b = tf.equal(y_true, 0.0)
+    loss_a = - y_pred[mask_a]
+    loss_b = y_pred[mask_b]
+    if (~tf.math.is_nan(tf.reduce_mean(loss_a))):
+        loss += tf.reduce_mean(loss_a)
+    # if (~tf.math.is_nan(tf.reduce_mean(loss_b))):
+    #     loss += tf.reduce_mean(loss_b)
+    return loss
+
 def get_loss(loss_name):
     if (loss_name == "surface_loss_with_mauer"):
         return surface_loss_with_mauer
@@ -50,6 +64,8 @@ def get_loss(loss_name):
         return dice_loss
     if (loss_name == "data_adaptive_loss"):
         return data_adaptive_loss
+    if (loss_name == "mime_loss"):
+        return mime_loss
     
     return tensorflow.keras.losses.get(loss_name)
 
