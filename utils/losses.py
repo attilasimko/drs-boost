@@ -45,7 +45,6 @@ def data_adaptive_binary_crossentropy_part(y_true, y_pred):
 
 def mime_loss(y_true, y_pred):
     import tensorflow as tf
-
     loss = 0.0
     mask_a = tf.not_equal(y_true, False)
     mask_b = tf.equal(y_true, False)

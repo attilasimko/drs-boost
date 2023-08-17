@@ -275,10 +275,14 @@ class Timer:
     
 def prune_config(config, name):
     if (name == "gerd"):
-        config["parameters"]["num_filters"] = 24
+        config["parameters"]["num_filters"] = 20
         config["parameters"]["optimizer"] = "Adam"
         config["parameters"]["batch_size"] = 8
-        print("Parameters pruned: num_filters = 24, optimizer = Adam, batch_size = 8")
+        print("Parameters pruned: num_filters = 20, optimizer = Adam, batch_size = 8")
+    if (name == "william"):
+        config["parameters"]["optimizer"] = "Adam"
+        config["parameters"]["learning_rate"] = {"type": "float", "scalingType": "loguniform", "min": 0.000004, "max": 0.01}
+        print("Parameters pruned: optimizer = Adam, min. learning rate = 0.000004")
 
     return config
 
