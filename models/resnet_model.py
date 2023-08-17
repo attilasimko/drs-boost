@@ -24,7 +24,7 @@ class ResNetModel(BaseModel):
                 "parameters": {
                     "optimizer": {"type": "categorical", "values": ["Adam", "SGD", "RMSprop"]},
                     "learning_rate": {"type": "float", "scalingType": "loguniform", "min": 0.00000001, "max": 0.01},
-                    "num_filters": {"type": "integer", "min": 2, "max": 12},
+                    "num_filters": {"type": "integer", "min": 2, "max": 4},
                     "dropout_rate": {"type": "float", "min": 0.0, "max": 0.6},
                     "batch_size": {"type": "discrete", "values": [4, 8, 16, 32]},
                 },
@@ -112,39 +112,28 @@ class ResNetModel(BaseModel):
         inputs = []
         for i in range(len(generator.inputs)):
             inputs.append(Input(shape=generator.in_dims[i][1:]))
-        input = Concatenate()(inputs)
+        x = Concatenate()(inputs)
         
-        x = ZeroPadding2D(padding=(3, 3))(input)
-
-        x = Conv2D(64, kernel_size=(3, 3), padding="same")(x)
-        x = BatchNormalization()(x)
-        x = Activation(activations.relu)(x)
-        x = MaxPooling2D((2, 2))(x)
-
         num_filters = experiment.get_parameter('num_filters')
         dropout_rate = experiment.get_parameter('dropout_rate')
 
-        x = input
-        i = 0
-        while ((np.shape(x)[1] >= 2) & (np.cumprod(np.shape(x)[1:])[-1] > 256)):
-            s = 2 if i > 0 else 1
-            x = ResNetModel.res_conv(x, s, (num_filters*(2**i), num_filters*(4**i)))
-            x = ResNetModel.res_identity(x, (num_filters*(2**i), num_filters*(4**i)))
-            x = ResNetModel.res_identity(x, (num_filters*(2**i), num_filters*(4**i)))
-            i += 1
-            if (i > 10):
-                raise Exception("Too many layers!")
-        
+        x = Conv2D(num_filters, kernel_size=(3, 3), padding="same", activation="relu")(x)
+        x = Conv2D(num_filters*2, kernel_size=(3, 3), padding="same", activation="relu")(x)
+        x = Conv2D(num_filters*2, kernel_size=(3, 3), padding="same", activation="relu")(x)
         x = Flatten()(x)
+
+        x = Dense(1024, activation='relu')(x)
+        x = Dropout(dropout_rate)(x)
+        x = Dense(512, activation='relu')(x)
         x = Dropout(dropout_rate)(x)
         x = Dense(256, activation='relu')(x)
         x = Dropout(dropout_rate)(x)
         x = Dense(128, activation='relu')(x)
         x = Dropout(dropout_rate)(x)
         x = Dense(64, activation='relu')(x)
-        x = Dense(12, activation='relu')(x)
+        x = Dropout(dropout_rate)(x)
         x = Dense(len(generator.outputs), activation="sigmoid")(x)
-        
+
         outputs = []
         for i in range(len(generator.outputs)):
             outputs.append(x[:, i:i+1])
