@@ -15,12 +15,13 @@ def data_adaptive_loss(y_true, y_pred):
     return data_adaptive_loss / num_el
 
 def data_adaptive_dice_metric(y_true, y_pred):
+    data_adaptive_loss = []
     y_true = K.cast(y_true, dtype='float32')
     for slc in range(np.shape(y_true)[0]):
         if (tensorflow.greater(tensorflow.reduce_sum(y_true[slc, 0, 0, 0]), 0.0)):
-            data_adaptive_loss = data_adaptive_class_loss(y_true[slc:slc+1, :, :, 0], y_pred[slc:slc+1, :, :, 0], 1)
+            data_adaptive_loss.append(data_adaptive_class_loss(y_true[slc:slc+1, :, :, 0], y_pred[slc:slc+1, :, :, 0], 1))
         else:
-            return np.nan
+            data_adaptive_loss.append(np.nan)
     return data_adaptive_loss
 
 def data_adaptive_class_loss(y_true, y_pred, delta=0.5):
