@@ -17,6 +17,7 @@ def data_adaptive_loss(y_true, y_pred):
 def data_adaptive_dice_metric(y_true, y_pred):
     data_adaptive_loss = 0.0
     num_el = K.epsilon()
+    y_true = K.cast(y_true, dtype='float32')
     for slc in range(np.shape(y_true)[0]):
         if (tensorflow.greater(tensorflow.reduce_sum(y_true[slc, 0, 0, :]), 0.0)):
             indeces = tensorflow.random.shuffle(tensorflow.where(tensorflow.greater(y_true[slc, 0, 0, :], 0.0)))[0]
