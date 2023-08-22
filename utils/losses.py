@@ -8,8 +8,7 @@ def data_adaptive_loss(y_true, y_pred):
     num_el = K.epsilon()
     y_true = K.cast(y_true, dtype='float32')
     for slc in range(np.shape(y_true)[0]):
-        if (tensorflow.greater(y_true[slc, 0, 0, 0]), 0.0):
-            print("in")
+        if (tensorflow.greater(y_true[slc, 0, 0, 0], 0.0)):
             data_adaptive_loss += data_adaptive_class_loss(y_true[slc:slc+1, :, :, 0], y_pred[slc:slc+1, :, :, 0])
             num_el += 1
     return data_adaptive_loss / num_el
@@ -19,7 +18,7 @@ def data_adaptive_dice_metric(y_true, y_pred):
     num_el = K.epsilon()
     y_true = K.cast(y_true, dtype='float32')
     for slc in range(np.shape(y_true)[0]):
-        if (tensorflow.greater(y_true[slc, 0, 0, 0]), 0.0):
+        if (tensorflow.greater(y_true[slc, 0, 0, 0], 0.0)):
             data_adaptive_l += data_adaptive_class_loss(y_true[slc:slc+1, :, :, 0], y_pred[slc:slc+1, :, :, 0], 1)
             num_el += 1
     return data_adaptive_l / num_el
