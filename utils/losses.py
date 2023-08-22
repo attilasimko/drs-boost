@@ -1,46 +1,44 @@
 import tensorflow
+import numpy as np
 from keras import backend as K
 K.set_image_data_format('channels_last')  # TF dimension ordering in this code
 
 def data_adaptive_loss(y_true, y_pred):
-    l, p = data_adaptive_class_loss(tensorflow.cast(y_true, dtype=tensorflow.float32), y_pred)
-    return l/(tensorflow.cast((p+1), dtype=tensorflow.float32))
+    data_adaptive_loss = 0.0
+    num_el = K.epsilon()
+    y_true = K.cast(y_true, dtype='float32')
+    for slc in range(np.shape(y_true)[0]):
+        if (tensorflow.greater(tensorflow.reduce_sum(y_true[slc, 0, 0, :]), 0.0)):
+            idx = tensorflow.random.shuffle(tensorflow.where(tensorflow.greater(y_true[slc, 0, 0, :], 0.0)))[0][0]
+            data_adaptive_loss += data_adaptive_class_loss(y_true[slc:slc+1, :, :, idx], y_pred[slc:slc+1, :, :, idx])
+            num_el += 1
+    return data_adaptive_loss / num_el
 
 def data_adaptive_dice_metric(y_true, y_pred):
-    l, p = data_adaptive_class_loss(tensorflow.cast(y_true, dtype=tensorflow.float32), y_pred, 1)
-    return l/(tensorflow.cast((p+1), dtype=tensorflow.float32))
+    data_adaptive_loss = 0.0
+    num_el = K.epsilon()
+    for slc in range(np.shape(y_true)[0]):
+        if (tensorflow.greater(tensorflow.reduce_sum(y_true[slc, 0, 0, :]), 0.0)):
+            indeces = tensorflow.random.shuffle(tensorflow.where(tensorflow.greater(y_true[slc, 0, 0, :], 0.0)))[0]
+            for idx in indeces:
+                data_adaptive_loss += data_adaptive_class_loss(y_true[slc:slc+1, :, :, idx], y_pred[slc:slc+1, :, :, idx], 1)
+                num_el += 1
+    return data_adaptive_loss / num_el
 
 def data_adaptive_class_loss(y_true, y_pred, delta=0.5):
-    # Batch size
-    s = K.shape(y_true)[0]
-    # Weight
-    w = y_true[:,0,0,0]
-    # Set weight to zero
-    z = K.zeros_like(y_true[:,:,0:1,:])
-    y_part = y_true[:,:,1:,:]
-    y_true = K.concatenate([z, y_part], axis=2)
-    # How many times the mask accures
-    a = K.sum(w)
-    # Chech if masks are present at all
-    p = K.switch(K.equal(a,0), 0, 1)
-    # Calculating loss
-    y_true_f = K.reshape(y_true, (s, -1))
-    y_pred_f = K.reshape(y_pred, (s, -1))
+    y_true_f = K.flatten(y_true)
+    y_pred_f = K.flatten(y_pred)
     l = (delta*(1.-data_adaptive_dice_part(y_true_f, y_pred_f))) + ((1-delta)*data_adaptive_binary_crossentropy_part(y_true_f, y_pred_f))
-    # Set loss to zero if mask does not excist
-    l = w*l
-    # Sum and div by number of present masks
-    l = K.sum(l)/(a + K.epsilon())
-    return l, p
+    return l
 
 def data_adaptive_dice_part(y_true, y_pred):
-    intersection = K.sum(y_true * y_pred, axis=1)
-    values = (2. * intersection + K.epsilon()) / (K.sum(y_true, axis=1) + K.sum(y_pred,axis=1) + K.epsilon())
+    intersection = K.sum(y_true * y_pred)
+    values = (2. * intersection + K.epsilon()) / (K.sum(y_true) + K.sum(y_pred) + K.epsilon())
     return values
 
 def data_adaptive_binary_crossentropy_part(y_true, y_pred):
     cross = K.binary_crossentropy(y_true, y_pred)
-    m = K.mean(cross, axis=1)
+    m = K.mean(cross)
     return m
 
 def mime_loss(y_true, y_pred):
