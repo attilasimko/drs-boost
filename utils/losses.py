@@ -22,7 +22,7 @@ def data_adaptive_dice_metric(y_true, y_pred):
             data_adaptive_loss.append(data_adaptive_class_loss(y_true[slc:slc+1, :, :, 0], y_pred[slc:slc+1, :, :, 0], 1))
         else:
             data_adaptive_loss.append(np.nan)
-    return data_adaptive_loss
+    return np.nanmean(data_adaptive_loss)
 
 def data_adaptive_class_loss(y_true, y_pred, delta=0.5):
     y_true_f = K.flatten(y_true)[1:]
