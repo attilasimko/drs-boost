@@ -19,7 +19,7 @@ def data_adaptive_dice_metric(y_true, y_pred):
     y_true = K.cast(y_true, dtype='float32')
     for slc in range(np.shape(y_true)[0]):
         if (tensorflow.greater(tensorflow.reduce_sum(y_true[slc, 0, 0, 0]), 0.0)):
-            data_adaptive_loss.append(data_adaptive_class_loss(y_true[slc:slc+1, :, :, 0], y_pred[slc:slc+1, :, :, 0], 1))
+            data_adaptive_loss.append(np.array(data_adaptive_class_loss(y_true[slc:slc+1, :, :, 0], y_pred[slc:slc+1, :, :, 0], 1)))
         else:
             data_adaptive_loss.append(np.nan)
     return np.nanmean(data_adaptive_loss)
