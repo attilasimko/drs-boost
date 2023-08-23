@@ -9,7 +9,6 @@ def data_adaptive_loss(y_true, y_pred):
     y_true = K.cast(y_true, dtype='float32')
     for slc in range(np.shape(y_true)[0]):
         if (tensorflow.greater(y_true[slc, 0, 0, 0], 0.0)):
-            print("hey")
             data_adaptive_loss += data_adaptive_class_loss(y_true[slc:slc+1, :, :, 0], y_pred[slc:slc+1, :, :, 0], 1)
             num_el += 1
     return data_adaptive_loss / num_el
@@ -20,7 +19,6 @@ def data_adaptive_dice_metric(y_true, y_pred):
     y_true = K.cast(y_true, dtype='float32')
     for slc in range(np.shape(y_true)[0]):
         if (tensorflow.greater(y_true[slc, 0, 0, 0], 0.0)):
-            print("hey")
             data_adaptive_l += data_adaptive_class_loss(y_true[slc:slc+1, :, :, 0], y_pred[slc:slc+1, :, :, 0], 1)
             num_el += 1
     return data_adaptive_l / num_el
@@ -28,7 +26,6 @@ def data_adaptive_dice_metric(y_true, y_pred):
 def data_adaptive_class_loss(y_true, y_pred, delta=0.5):
     y_true_f = K.flatten(y_true)[1:]
     y_pred_f = K.flatten(y_pred)[1:]
-    print(y_true_f.shape)
     l = (delta*(1.-data_adaptive_dice_part(y_true_f, y_pred_f))) + ((1-delta)*data_adaptive_binary_crossentropy_part(y_true_f, y_pred_f))
     return l
 
