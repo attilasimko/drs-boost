@@ -132,7 +132,7 @@ class ResNetModel(BaseModel):
         x = Dropout(dropout_rate)(x)
         x = Dense(64, activation='relu')(x)
         x = Dropout(dropout_rate)(x)
-        x = Dense(len(generator.outputs), activation="sigmoid")(x)
+        x = Dense(len(generator.outputs), activation="softmax")(x)
 
         outputs = []
         for i in range(len(generator.outputs)):
