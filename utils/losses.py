@@ -13,6 +13,9 @@ def data_adaptive_loss(y_true, y_pred):
             num_el += 1
     return data_adaptive_loss / num_el
 
+def mean_error(y_true, y_pred):
+    return tensorflow.reduce_mean(tensorflow.subtract(y_true, y_pred))
+
 def data_adaptive_dice_metric(y_true, y_pred):
     data_adaptive_l = 0.0
     num_el = K.epsilon()
@@ -69,6 +72,8 @@ def get_metric(metric_name):
         return dice_loss
     if (metric_name == "data_adaptive_dice_metric"):
         return data_adaptive_dice_metric
+    if (metric_name == "mean_error"):
+        return mean_error
     
     return tensorflow.keras.metrics.get(metric_name)
 
