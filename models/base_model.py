@@ -91,8 +91,8 @@ class BaseModel(ABC):
         metric = get_metric(experiment.get_parameter("metric"))
         loss_weights = list(np.ones(len(model.outputs)))
 
-        if (experiment.get_parameter("name") == "erik"):
-            loss_weights[0] = 0.0
+        # if (experiment.get_parameter("name") == "erik"):
+        #     loss_weights[0] = 0.0
 
         print("\nCompiling model...")
         print(f"Learning rate: {experiment.get_parameter('learning_rate')}")
