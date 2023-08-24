@@ -17,14 +17,16 @@ def mean_error(y_true, y_pred):
     return tensorflow.reduce_mean(tensorflow.subtract(y_true, y_pred))
 
 def data_adaptive_dice_metric(y_true, y_pred):
-    data_adaptive_l = 0.0
+    data_adaptive_l = []
     num_el = K.epsilon()
     y_true = K.cast(y_true, dtype='float32')
     for slc in range(np.shape(y_true)[0]):
         if (tensorflow.greater(y_true[slc, 0, 0, 0], 0.0)):
-            data_adaptive_l += data_adaptive_class_loss(y_true[slc:slc+1, :, :, 0], y_pred[slc:slc+1, :, :, 0], 1)
+            data_adaptive_l.extend([data_adaptive_class_loss(y_true[slc:slc+1, :, :, 0], y_pred[slc:slc+1, :, :, 0], 1)])
             num_el += 1
-    return data_adaptive_l / num_el
+        else:
+            data_adaptive_l.extend([np.nan])
+    return data_adaptive_l
 
 def data_adaptive_class_loss(y_true, y_pred, delta=0.5):
     y_true_f = K.flatten(y_true)[1:]

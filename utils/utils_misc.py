@@ -137,7 +137,8 @@ def evaluate(experiment, model, gen, eval_type):
 
         pred = model.predict_on_batch(x)
         for i in range(len(y)):
-            loss_list[i].extend([np.nanmean([fn(y[i], pred[i])])])
+            for slice in range(y[i].shape[0]):
+                loss_list[i].extend([fn(y[i][slice:slice+1, ], pred[i][slice:slice+1, ])])
 
     for i in range(len(y)):
         experiment.log_metrics({f"{eval_type}_loss_{i}": np.nanmean(loss_list[i])})

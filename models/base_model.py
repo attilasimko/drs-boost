@@ -100,13 +100,13 @@ class BaseModel(ABC):
         print(f"Learning rate: {experiment.get_parameter('learning_rate')}")
         if (experiment.get_parameter("optimizer") == "Adam"): # "Adam", "SGD", "RMSprop"
             print("Optimizer: Adam")
-            model.compile(optimizer=Adam(experiment.get_parameter("learning_rate")), loss=loss, metrics=metric, loss_weights=loss_weights)
+            model.compile(optimizer=Adam(experiment.get_parameter("learning_rate")), loss=loss, loss_weights=loss_weights)
         elif (experiment.get_parameter("optimizer") == "SGD"):
             print("Optimizer: SGD")
-            model.compile(optimizer=SGD(experiment.get_parameter("learning_rate")), loss=loss, metrics=metric, loss_weights=loss_weights)
+            model.compile(optimizer=SGD(experiment.get_parameter("learning_rate")), loss=loss, loss_weights=loss_weights)
         elif (experiment.get_parameter("optimizer") == "RMSprop"):
             print("Optimizer: RMSprop")
-            model.compile(optimizer=RMSprop(experiment.get_parameter("learning_rate")), loss=loss, metrics=metric, loss_weights=loss_weights)
+            model.compile(optimizer=RMSprop(experiment.get_parameter("learning_rate")), loss=loss, loss_weights=loss_weights)
 
 
     def eval(self):
