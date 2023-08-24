@@ -24,7 +24,7 @@ class ResNetModel(BaseModel):
                 "parameters": {
                     "optimizer": {"type": "categorical", "values": ["Adam", "SGD", "RMSprop"]},
                     "learning_rate": {"type": "float", "scalingType": "loguniform", "min": 0.0000001, "max": 0.01},
-                    "num_filters": {"type": "integer", "min": 1, "max": 4},
+                    "num_filters": {"type": "integer", "min": 4, "max": 8},
                     "dropout_rate": {"type": "float", "min": 0.0, "max": 0.6},
                     "batch_size": {"type": "discrete", "values": [4, 8, 16, 32]},
                 },
@@ -114,23 +114,16 @@ class ResNetModel(BaseModel):
             inputs.append(Input(shape=generator.in_dims[i][1:]))
         x = Concatenate()(inputs)
         
-        num_filters = experiment.get_parameter('num_filters')
+        num_filters = len(generator.outputs) * experiment.get_parameter('num_filters')
         dropout_rate = experiment.get_parameter('dropout_rate')
 
-        x = Conv2D(num_filters, kernel_size=(3, 3), padding="same", activation="relu")(x)
-        x = Conv2D(num_filters*2, kernel_size=(3, 3), padding="same", activation="relu")(x)
-        x = Conv2D(num_filters*2, kernel_size=(3, 3), padding="same", activation="relu")(x)
+        x = Conv2D(x.shape[-1], kernel_size=(3, 3), padding="same", activation="relu")(x)
+        x = Dropout(dropout_rate)(x)
         x = Flatten()(x)
 
-        x = Dense(1024, activation='relu')(x)
+        x = Dense(num_filters * 2, activation='relu')(x)
         x = Dropout(dropout_rate)(x)
-        x = Dense(512, activation='relu')(x)
-        x = Dropout(dropout_rate)(x)
-        x = Dense(256, activation='relu')(x)
-        x = Dropout(dropout_rate)(x)
-        x = Dense(128, activation='relu')(x)
-        x = Dropout(dropout_rate)(x)
-        x = Dense(64, activation='relu')(x)
+        x = Dense(num_filters, activation='relu')(x)
         x = Dropout(dropout_rate)(x)
         x = Dense(len(generator.outputs), activation="softmax")(x)
 
