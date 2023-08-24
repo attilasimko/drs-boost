@@ -42,18 +42,15 @@ def data_adaptive_binary_crossentropy_part(y_true, y_pred):
     m = K.mean(cross)
     return m
 
-def erik_loss(y_true, y_pred):
+def erik_loss(skip_value):
     import tensorflow as tf
-    loss = 0.0
-    mask_a = tf.not_equal(y_true, False)
-    mask_b = tf.equal(y_true, False)
-    loss_a = - y_pred[mask_a]
-    loss_b = y_pred[mask_b]
-    if (~tf.math.is_nan(tf.reduce_mean(loss_a))):
-        loss += tf.reduce_mean(loss_a)
-    # if (~tf.math.is_nan(tf.reduce_mean(loss_b))):
-    #     loss += tf.reduce_mean(loss_b)
-    return loss
+    def loss_fn(y_true, y_pred):
+        loss = 0.0
+        for i in range(y_true.shape[0]):
+            alpha = 0.00001 if (y_true[i, 0, 0, 0] == skip_value) else 1.0
+            loss += alpha * tf.reduce_mean(tf.abs(y_true[i, ] - y_pred[i, ]))
+        return loss / y_true.shape[0]
+    return loss_fn
 
 def mime_loss(y_true, y_pred):
     import tensorflow as tf
