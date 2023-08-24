@@ -48,6 +48,7 @@ def erik_loss(skip_value):
         loss = 0.0
         for i in range(y_true.shape[0]):
             alpha = 0.00001 if (y_true[i, 0, 0, 0] == skip_value) else 1.0
+            print(alpha)
             loss += alpha * tf.reduce_mean(tf.abs(y_true[i, ] - y_pred[i, ]))
         return loss / y_true.shape[0]
     return loss_fn
