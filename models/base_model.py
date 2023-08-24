@@ -89,10 +89,12 @@ class BaseModel(ABC):
         from utils.losses import get_loss, get_metric
         loss = get_loss(experiment.get_parameter("loss"))
         metric = get_metric(experiment.get_parameter("metric"))
-        loss_weights = list(np.ones(len(model.outputs)))
+        print(f"Training loss: {loss.__name__}")
+        print(f"Validation metric: {metric.__name__}")
 
-        # if (experiment.get_parameter("name") == "erik"):
-        #     loss_weights[0] = 0.0
+        loss_weights = list(np.ones(len(model.outputs)))
+        if ((experiment.get_parameter("name") == "erik") & (experiment.get_parameter("loss") == "erik_loss")):
+            loss = [loss(1.0), loss(0.0), loss(0.0), loss(0.0)]
 
         print("\nCompiling model...")
         print(f"Learning rate: {experiment.get_parameter('learning_rate')}")
@@ -106,8 +108,6 @@ class BaseModel(ABC):
             print("Optimizer: RMSprop")
             model.compile(optimizer=RMSprop(experiment.get_parameter("learning_rate")), loss=loss, metrics=metric, loss_weights=loss_weights)
 
-        print(f"Training loss: {loss.__name__}")
-        print(f"Validation metric: {metric.__name__}")
 
     def eval(self):
         """Make models eval mode during test time"""
