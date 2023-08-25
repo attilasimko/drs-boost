@@ -49,7 +49,7 @@ def erik_loss(skip_value):
     def loss_fn(y_true, y_pred):
         loss = 0.0
         for i in range(y_true.shape[0]):
-            alpha = tf.math.abs(y_true[i, 0, 0, 0] - skip_value)
+            alpha = 0.001 if (y_true[i, 0, 0, 0] == skip_value) else 1.0
             loss += alpha * tf.losses.binary_crossentropy(y_true[i, ], y_pred[i, ])
         return loss / y_true.shape[0]
     return loss_fn
