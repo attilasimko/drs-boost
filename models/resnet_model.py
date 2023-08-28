@@ -119,13 +119,15 @@ class ResNetModel(BaseModel):
 
         x = Conv2D(x.shape[-1], kernel_size=(3, 3), padding="same", activation="relu")(x)
         x = Dropout(dropout_rate)(x)
+        x = Conv2D(num_filters * 3, kernel_size=(3, 3), padding="same", activation="relu")(x)
+        x = Dropout(dropout_rate)(x)
         x = Flatten()(x)
 
         x = Dense(num_filters * 2, activation='relu')(x)
         x = Dropout(dropout_rate)(x)
         x = Dense(num_filters, activation='relu')(x)
         x = Dropout(dropout_rate)(x)
-        x = Dense(len(generator.outputs), activation="softmax")(x)
+        x = Dense(len(generator.outputs), activation="sigmoid")(x)
 
         outputs = []
         for i in range(len(generator.outputs)):
