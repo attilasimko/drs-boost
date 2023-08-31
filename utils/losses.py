@@ -3,6 +3,35 @@ import numpy as np
 from keras import backend as K
 K.set_image_data_format('channels_last')  # TF dimension ordering in this code
 
+def get_loss(loss_name):
+    if (loss_name == "surface_loss_with_mauer"):
+        return surface_loss_with_mauer
+    if (loss_name == "dice_loss"):
+        return dice_loss
+    if (loss_name == "data_adaptive_loss"):
+        return data_adaptive_loss
+    if (loss_name == "erik_loss"):
+        return erik_loss
+    if (loss_name == "mime_loss"):
+        return mime_loss
+    
+    return tensorflow.keras.losses.get(loss_name)
+
+def get_metric(metric_name):
+    if (metric_name == "dice_loss"):
+        return dice_loss
+    if (metric_name == "data_adaptive_dice_metric"):
+        return data_adaptive_dice_metric
+    if (metric_name == "mean_error"):
+        return mean_error
+    if (metric_name == "hamming"):
+        return hamming
+    
+    return tensorflow.keras.metrics.get(metric_name)
+
+def hamming(y_true, y_pred):
+    return - tensorflow.math.reduce_sum(y_true * y_pred)
+
 def data_adaptive_loss(y_true, y_pred):
     data_adaptive_loss = 0.0
     num_el = K.epsilon()
@@ -66,30 +95,6 @@ def mime_loss(y_true, y_pred):
     # if (~tf.math.is_nan(tf.reduce_mean(loss_b))):
     #     loss += tf.reduce_mean(loss_b)
     return loss
-
-def get_loss(loss_name):
-    if (loss_name == "surface_loss_with_mauer"):
-        return surface_loss_with_mauer
-    if (loss_name == "dice_loss"):
-        return dice_loss
-    if (loss_name == "data_adaptive_loss"):
-        return data_adaptive_loss
-    if (loss_name == "erik_loss"):
-        return erik_loss
-    if (loss_name == "mime_loss"):
-        return mime_loss
-    
-    return tensorflow.keras.losses.get(loss_name)
-
-def get_metric(metric_name):
-    if (metric_name == "dice_loss"):
-        return dice_loss
-    if (metric_name == "data_adaptive_dice_metric"):
-        return data_adaptive_dice_metric
-    if (metric_name == "mean_error"):
-        return mean_error
-    
-    return tensorflow.keras.metrics.get(metric_name)
 
 def surface_loss_with_mauer(y_true, y_pred):
     mask = y_true[:,0,:,:,:]
