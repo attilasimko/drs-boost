@@ -281,8 +281,9 @@ def prune_config(config, name):
         print("Parameters pruned: num_filters = 8, optimizer = Adam, batch_size = 8")
     if (name == "william"):
         config["parameters"]["optimizer"] = "Adam"
-        config["parameters"]["learning_rate"] = {"type": "float", "scalingType": "loguniform", "min": 0.000004, "max": 0.01}
-        print("Parameters pruned: optimizer = Adam, min. learning rate = 0.000004")
+        config["parameters"]["learning_rate"] = {"type": "float", "scalingType": "loguniform", "min": 0.00004, "max": 0.004}
+        config["parameters"]["batch_normalization"] = "True"
+        print("Parameters pruned: optimizer = Adam, min. learning rate = 0.00004")
 
     return config
 
