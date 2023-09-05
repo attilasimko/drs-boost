@@ -156,7 +156,7 @@ def plot_results(experiment, model, gen):
     for i, data in enumerate(gen):
         if (plot_idx <= plot_num):
             if (experiment_name == "erik"):
-                if (data[1][0][0] == 1):
+                if (np.mean(data[1][0]) == 1.0):
                     continue
 
             plot_idx += 1
@@ -187,10 +187,10 @@ def plot_results(experiment, model, gen):
             y_num = len(y)
             for idx in range(y_num):
                 plt.subplot(3, y_num, y_num + idx + 1)
-                if (experiment_name == "erik"):
-                    plt.imshow(y[idx][0, ...], vmin=0, vmax=1, cmap='gray')
-                else:
-                    plt.imshow(y[idx][0, :, :, 0], cmap='gray')
+                # if (experiment_name == "erik"):
+                #     plt.imshow(y[idx][0, ...], vmin=0, vmax=1, cmap='gray')
+                # else:
+                plt.imshow(y[idx][0, :, :, 0], cmap='gray')
                 plt.colorbar()
                 plt.title(outputs[idx])
                 plt.xticks([])
@@ -198,10 +198,10 @@ def plot_results(experiment, model, gen):
 
             for idx in range(y_num):
                 plt.subplot(3, y_num, y_num + y_num + idx + 1)
-                if (experiment_name == "erik"):
-                    plt.imshow(np.expand_dims(pred[idx][0:1], -1), vmin=0, vmax=1, cmap='gray')
-                else:
-                    plt.imshow(pred[idx][0, :, :, 0], cmap='gray')
+                # if (experiment_name == "erik"):
+                #     plt.imshow(np.expand_dims(pred[idx][0:1], -1), vmin=0, vmax=1, cmap='gray')
+                # else:
+                plt.imshow(pred[idx][0, :, :, 0], cmap='gray')
                 plt.colorbar()
                 plt.title(outputs[idx])
                 plt.xticks([])
