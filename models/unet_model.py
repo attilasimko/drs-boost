@@ -153,7 +153,7 @@ class UNetModel(BaseModel):
             out = Activation('softmax')(out)
             use_softmax = True
         
-        if (experiment.get_parameter("name") == "gerd"):
+        if (experiment.get_parameter("name") == "gerd" | experiment.get_parameter("name") == "erik"):
             print("Using softmax activation for Gerd project.")
             out = Activation('softmax')(out)
             use_softmax = True
