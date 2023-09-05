@@ -2,7 +2,7 @@ def setup_generators(data_path, inputs, outputs, batch_size):
     from data import DataGenerator
     
     print("\nSetting up training generator...")
-    dataset_train = DataGenerator(data_path + "training/", inputs, outputs, batch_size=batch_size)
+    dataset_train = DataGenerator(data_path + "training/", inputs, outputs, batch_size=batch_size, shuffle=True)
     print("\nSetting up validation generator...")
     dataset_validate = DataGenerator(data_path + "validating/", inputs, outputs, batch_size=batch_size)
     print("\nSetting up testing generator...")

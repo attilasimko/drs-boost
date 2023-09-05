@@ -29,7 +29,7 @@ class DataGenerator(tensorflow.keras.utils.Sequence):
                  inputs,
                  outputs,
                  batch_size=32,
-                 shuffle=True
+                 shuffle=False
                  ):
 
         self.data_path = data_path
