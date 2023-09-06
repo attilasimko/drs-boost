@@ -156,7 +156,7 @@ def plot_results(experiment, model, gen):
     for i, data in enumerate(gen):
         if (plot_idx <= plot_num):
             if (experiment_name == "erik"):
-                if (np.mean(data[1][0]) == 1.0):
+                if (np.min(data[1][0][0, ]) == 1.0):
                     continue
 
             plot_idx += 1
