@@ -112,7 +112,7 @@ for model_name in model_array:
             gen_train.on_epoch_end()
             clear_memory()
             experiment.log_metrics({"training_loss": np.mean(train_loss),
-                                    "val_metric": np.mean(val_metric)}, epoch=epoch)
+                                    "val_loss": np.mean(val_metric)}, epoch=epoch)
             
             if val_metric < min_loss:
                 patience = 0
