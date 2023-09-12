@@ -20,7 +20,7 @@ class UNetModel(BaseModel):
         return {
                 "algorithm": "bayes",
                 "name": "UNet",
-                "spec": {"maxCombo": 0, 'retryLimit': num_opt, "objective": "minimize", "metric": "val_loss"},
+                "spec": {"maxCombo": num_opt, 'retryLimit': num_opt, "objective": "minimize", "metric": "val_loss"},
                 "parameters": {
                     "optimizer": {"type": "categorical", "values": ["Adam", "SGD", "RMSprop"]},
                     "learning_rate": {"type": "float", "scalingType": "loguniform", "min": 0.0000001, "max": 0.01},
@@ -153,9 +153,14 @@ class UNetModel(BaseModel):
             out = Activation('softmax')(out)
             use_softmax = True
         
-        if ((experiment.get_parameter("name") == "gerd") | (experiment.get_parameter("name") == "erik")):
+        if (not(use_softmax) & ((experiment.get_parameter("name") == "gerd"))):# | (experiment.get_parameter("name") == "erik"))):
             print("Using softmax activation for Gerd/Erik project.")
             out = Activation('softmax')(out)
+            use_softmax = True
+
+        if (not(use_softmax) & ((experiment.get_parameter("name") == "erik"))):# | (experiment.get_parameter("name") == "erik"))):
+            print("Using sigmoid activation for Gerd/Erik project.")
+            out = Activation('sigmoid')(out)
             use_softmax = True
 
 
