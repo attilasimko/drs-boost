@@ -181,8 +181,9 @@ def plot_results(experiment, model, gen):
             x_num = len(x)
             plt.clf()
             for idx in range(x_num):
+                vmin, vmax = np.min(x[idx][0, :, :, 0]), np.max(x[idx][0, :, :, 0])
                 plt.subplot(3, x_num, idx + 1)
-                plt.imshow(x[idx][0, :, :, 0], cmap='gray')
+                plt.imshow(x[idx][0, :, :, 0], vmin=vmin, vmax=vmax, cmap='gray')
                 plt.title(inputs[idx])
                 plt.colorbar()
                 plt.xticks([])
@@ -190,22 +191,22 @@ def plot_results(experiment, model, gen):
 
             y_num = len(y)
             for idx in range(y_num):
+                vmin, vmax = np.min(y[idx][0, :, :, 0]), np.max(y[idx][0, :, :, 0])
+                if (experiment_name == "erik"):
+                    vmin, vmax = 0, 1
                 plt.subplot(3, y_num, y_num + idx + 1)
-                # if (experiment_name == "erik"):
-                #     plt.imshow(y[idx][0, ...], vmin=0, vmax=1, cmap='gray')
-                # else:
-                plt.imshow(y[idx][0, :, :, 0], cmap='gray')
+                plt.imshow(y[idx][0, :, :, 0], vmin=vmin, vmax=vmax, cmap='gray')
                 plt.colorbar()
                 plt.title(outputs[idx])
                 plt.xticks([])
                 plt.yticks([])
 
             for idx in range(y_num):
+                vmin, vmax = np.min(pred[idx][0, :, :, 0]), np.max(pred[idx][0, :, :, 0])
+                if (experiment_name == "erik"):
+                    vmin, vmax = 0, 1
                 plt.subplot(3, y_num, y_num + y_num + idx + 1)
-                # if (experiment_name == "erik"):
-                #     plt.imshow(np.expand_dims(pred[idx][0:1], -1), vmin=0, vmax=1, cmap='gray')
-                # else:
-                plt.imshow(pred[idx][0, :, :, 0], cmap='gray')
+                plt.imshow(pred[idx][0, :, :, 0], vmin=vmin, vmax=vmax, cmap='gray')
                 plt.colorbar()
                 plt.title(outputs[idx])
                 plt.xticks([])

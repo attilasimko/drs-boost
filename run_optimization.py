@@ -102,6 +102,7 @@ for model_name in model_array:
         if (utils_misc.memory_check(experiment, model) == False):
             print("Not enough memory to train this model, skipping to next model.")
             val_metric = utils_misc.evaluate(experiment, model, gen_val, "val")
+            experiment.log_metrics({"val_loss": np.mean(val_metric)}, epoch=0)
             continue
         
         min_loss = np.inf
