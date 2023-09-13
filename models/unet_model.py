@@ -66,7 +66,7 @@ class UNetModel(BaseModel):
                     kernel_initializer='HeNormal')(conv)
         
         # Batch Normalization will normalize the output of the last layer based on the batch's mean and standard deviation
-        conv = BatchNormalization()(conv, training=False)
+        conv = BatchNormalization()(conv)
 
         # In case of overfitting, dropout will regularize the loss and gradient computation to shrink the influence of weights on output
         if dropout_prob > 0:     
