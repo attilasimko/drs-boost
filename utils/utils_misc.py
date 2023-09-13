@@ -136,6 +136,7 @@ def evaluate(experiment, model, gen, eval_type):
                 loss_list.append([])
 
         pred = model.predict_on_batch(x)
+        pred = np.split(pred, 4, -1)
         for i in range(len(y)):
             for slice in range(y[i].shape[0]):
                 loss_list[i].extend([fn(y[i][slice:slice+1, ], pred[i][slice:slice+1, ])])
@@ -156,13 +157,16 @@ def plot_results(experiment, model, gen):
     for i, data in enumerate(gen):
         if (plot_idx <= plot_num):
             if (experiment_name == "erik"):
-                if (np.min(data[1][0][0, ]) == 1.0):
+                if (np.min(data[1][(plot_idx % 2) + 1][0, ]) == 0.0):
                     continue
 
             plot_idx += 1
             y = data[1]
             x = data[0]
             pred = model.predict_on_batch(x)
+
+            if (experiment_name == "erik"):
+                pred = np.split(pred, 4, -1)
 
             if (experiment_name == "william"): # William HC
                 for i in range(len(x)):

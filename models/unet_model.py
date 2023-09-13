@@ -159,8 +159,8 @@ class UNetModel(BaseModel):
             use_softmax = True
 
         if ((use_softmax == False) & ((experiment.get_parameter("name") == "erik"))):
-            print("Using sigmoid activation for Erik project.")
-            out = Activation('sigmoid')(out)
+            print("Using softmax activation for Erik project.")
+            out = Activation('softmax')(out)
             use_softmax = True
 
         outputs = []
@@ -186,7 +186,11 @@ class UNetModel(BaseModel):
                 out_i = current_out
             outputs.append(out_i)
         
-        model = Model(inputs, outputs)
+        
+        if (experiment.get_parameter("name") == "erik"):
+            model = Model(inputs, out)
+        else:
+            model = Model(inputs, outputs)
         return model
 
     def train(model, experiment, gen_train, gen_val, epoch):
@@ -199,6 +203,7 @@ class UNetModel(BaseModel):
         for i, data in enumerate(gen_train):
             x = data[0]
             y = data[1]
+            y = np.concatenate(y, axis=-1)
             loss = model.train_on_batch(x, y)
             train_loss.append(loss)
         toc = time.perf_counter()
