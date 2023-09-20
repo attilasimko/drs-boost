@@ -6,6 +6,8 @@ K.set_image_data_format('channels_last')  # TF dimension ordering in this code
 def get_loss(loss_name):
     if (loss_name == "surface_loss_with_mauer"):
         return surface_loss_with_mauer
+    if (loss_name == "generalized_dice_loss"):
+        return generalized_dice_loss
     if (loss_name == "dice_loss"):
         return dice_loss
     if (loss_name == "data_adaptive_loss"):
@@ -106,10 +108,9 @@ def surface_loss_with_mauer(y_true, y_pred):
 
 def generalized_dice_coef_with_mauer(y_true, y_pred):
     smooth = 1e-8
-    y_true_mask = y_true[:,0,:,:,:]
-    w = 1 / (tensorflow.einsum('bhwc->bc', y_true_mask) + 1e-10)**2
-    intersection = w * tensorflow.einsum('bwhc, bwhc->bc', y_true_mask, y_pred)
-    areas = w * ( tensorflow.einsum('bwhc->bc', y_true_mask) + tensorflow.einsum('bwhc->bc', y_pred) )
+    w = 1 / (tensorflow.einsum('bhwc->bc', y_true) + 1e-10)**2
+    intersection = w * tensorflow.einsum('bwhc, bwhc->bc', y_true, y_pred)
+    areas = w * ( tensorflow.einsum('bwhc->bc', y_true) + tensorflow.einsum('bwhc->bc', y_pred) )
     g_dice_coef = (2 * intersection + smooth) / (areas + smooth)
     return g_dice_coef
 
