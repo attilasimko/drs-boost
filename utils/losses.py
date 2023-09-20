@@ -1,6 +1,8 @@
 import tensorflow
 import numpy as np
 from keras import backend as K
+from focal_loss import BinaryFocalLoss
+from scipy import ndimage
 K.set_image_data_format('channels_last')  # TF dimension ordering in this code
 
 def get_loss(loss_name):
@@ -16,6 +18,8 @@ def get_loss(loss_name):
         return erik_loss
     if (loss_name == "mime_loss"):
         return mime_loss
+    if (loss_name == "dsfl"):
+        return dsfl
     
     return tensorflow.keras.losses.get(loss_name)
 
@@ -33,6 +37,36 @@ def get_metric(metric_name):
 
 def hamming(y_true, y_pred):
     return - tensorflow.math.reduce_sum(y_true * y_pred)
+
+def dsfl(y_true, y_pred, beta1=0.4, beta2=0.2, beta3=0.4, gamma=2):
+    focal_loss = BinaryFocalLoss(gamma)
+    dice_squared_l = dice_loss(y_true, y_pred)
+    surface_l = 1 + (surface_loss(y_true, y_pred) / 12)
+    focal_l_2 = focal_loss(y_true, y_pred)
+    return beta1 * dice_squared_l + beta2 * surface_l + beta3 * focal_l_2
+
+
+def surface_loss(y_true, y_pred):
+    y_true_dist_map = tensorflow.py_function(func=calc_dist_map_batch, inp=[y_true], Tout=tensorflow.float32)
+    multipled = y_pred * y_true_dist_map
+    return K.mean(multipled)
+
+def calc_dist_map_batch(y_true):
+    y_true_numpy = y_true.numpy()
+    dist_maps = np.array([calc_dist_map(y) for y in y_true_numpy])
+    return dist_maps.reshape(y_true.shape).astype(np.float32)
+
+def calc_dist_map(seg):
+    res = np.zeros_like(seg)
+    posmask = seg.astype(np.bool)
+    if posmask.any():
+        negmask = ~posmask
+        neg_dist = ndimage.distance_transform_edt(negmask) * negmask
+        pos_dist = (ndimage.distance_transform_edt(posmask) - 1) * posmask
+        res = neg_dist - pos_dist
+    return res
+
+
 
 def data_adaptive_loss(y_true, y_pred):
     data_adaptive_loss = 0.0
