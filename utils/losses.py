@@ -141,6 +141,7 @@ def surface_loss_with_mauer(y_true, y_pred):
     return surface_loss
 
 def generalized_dice_coef_with_mauer(y_true, y_pred):
+    y_true = tensorflow.cast(y_true, dtype='float32')
     smooth = 1e-8
     w = 1 / (tensorflow.einsum('bhwc->bc', y_true) + 1e-10)**2
     intersection = w * tensorflow.einsum('bwhc, bwhc->bc', y_true, y_pred)
