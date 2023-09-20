@@ -36,9 +36,15 @@ if args.gpu is not None:
 else:
     gpu = utils_misc.get_less_used_gpu()
 
-if (os.path.isdir(data_path + "temp/")):
-    shutil.rmtree(data_path + "temp/")
-os.mkdir(data_path + "temp/")
+tempId = 0
+while True:
+    if (os.path.isdir(f"{data_path}temp{tempId}/")):
+        tempId += 1
+    else:
+        break
+
+temp_path = f"{data_path}temp{tempId}/"
+os.mkdir(temp_path)
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -134,6 +140,6 @@ for model_name in model_array:
         print("Plotting, evaluating, exporting weights...")
         utils_misc.plot_results(experiment, model, gen_val)
         utils_misc.evaluate(experiment, model, gen_test, "test")
-        utils_misc.export_weights_to_hero(model, experiment, data_path + "temp/", f"{experiment.get_parameter('model')}_{experiment_idx}")
+        utils_misc.export_weights_to_hero(model, experiment, temp_path, f"{experiment.get_parameter('model')}_{experiment_idx}")
         experiment_idx += 1
         experiment.end()
