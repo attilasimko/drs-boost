@@ -88,7 +88,7 @@ class UNetModel(BaseModel):
             if (i < len(x_skip) - 1):
                 x = BatchNormalization()(x)
         x = Conv2D(output.shape[-1], 3, activation = 'relu', padding = 'same', kernel_initializer="he_normal")(x)
-        output = Conv2D(output.shape[-1], 1, activation = None, padding = 'same', kernel_initializer="he_normal")(x)
+        out = Conv2D(output.shape[-1], 1, activation = None, padding = 'same', kernel_initializer="he_normal")(x)
         
         use_softmax = False
         if (np.all([out_type == np.bool_ for out_type in generator.output_types])):
