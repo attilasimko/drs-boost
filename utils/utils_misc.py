@@ -241,16 +241,24 @@ def memory_check(experiment, model):
     return True
 
 def export_weights_to_hero(model, experiment, save_path, name):
+    import tensorflow as tf
     from tensorflow import function, TensorSpec
     from tensorflow import io
+    from tensorflow.keras.models import Model
     from tensorflow.python.tools import freeze_graph
     from tensorflow.python.framework.convert_to_constants import convert_variables_to_constants_v2
     import os
+    import numpy as np
 
     os.mkdir(save_path + name)
     try:
-        full_model = function(lambda x: model(x)) 
-        full_model = full_model.get_concrete_function([TensorSpec(x.shape, x.dtype) for x in model.inputs])
+
+        stack = tf.stack(model.inputs, -1)
+        output = model(tf.split(stack, stack.shape[-1], -1))
+        output_stack = tf.stack(output, -1)
+        export_model = Model(stack, output_stack)
+        full_model = function(lambda x: export_model(x)) 
+        full_model = full_model.get_concrete_function(TensorSpec(stack.shape, stack.dtype))
         frozen_func = convert_variables_to_constants_v2(full_model)
         frozen_func.graph.as_graph_def()
         io.write_graph(graph_or_graph_def=frozen_func.graph,
