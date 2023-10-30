@@ -8,6 +8,7 @@ parser.add_argument("--inputs", default=None, help="The field(s) to use as input
 parser.add_argument("--outputs", default=None, help="The field(s) to use as target(s) of the model. Multiple fields should be comma-separated.")
 parser.add_argument("--models", default="resnet", help="The model architectures that will be used. Multiple models should be comma-separated. Possible values: unet, srresnet.")
 parser.add_argument("--loss", default="mse", help="String definition of loss to use during training.")
+parser.add_argument("--algorithm", default="bayes", help="String definition of loss to use during training.")
 parser.add_argument("--metric", default="mse", help="String definition of metric to use during validation.")
 parser.add_argument("--num_epochs", default=None, help="Set the maximum number of epochs. Default is infinity.")
 parser.add_argument("--num_opt", default=10, help="Set the number of optimization steps. Default is 10.")
@@ -21,6 +22,7 @@ loss = args.loss
 metric = args.metric
 input_array = args.inputs
 output_array = args.outputs
+algorithm = args.algorithm
 model_array = args.models.split(',')
 patience_thr = int(args.patience)
 
@@ -79,7 +81,7 @@ if (output_array is None):
 
 for model_name in model_array:
     model = models.find_model_using_name(model_name)
-    config = model.get_config(num_opt)
+    config = model.get_config(num_opt, algorithm)
     config = prune_config(config, name)
     opt_comet = comet_ml.Optimizer(config)
     experiment_idx = 0
@@ -94,6 +96,7 @@ for model_name in model_array:
         experiment.log_parameter("workers", 4)
         experiment.log_parameter("max_queue_size", 4)
         experiment.log_parameter("use_multiprocessing", "False")
+        experiment.log_parameter("algorithm", algorithm)
         print(f"Model: {model_name} training iteration {experiment_idx}...")
         print(f"You can track your experiment at: https://www.comet.ml/attilasimko/{name}")
 

@@ -16,9 +16,9 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Conv2D, BatchNormalization, Add, Lambda, UpSampling2D, Conv2DTranspose, concatenate
 
 class ResNetModel(BaseModel):
-    def get_config(num_opt):
+    def get_config(num_opt, algorithm):
         return {
-                "algorithm": "bayes",
+                "algorithm": algorithm,
                 "name": "ResNet",
                 "spec": {"maxCombo": 0, 'retryLimit': num_opt, "objective": "minimize", "metric": "val_loss"},
                 "parameters": {
