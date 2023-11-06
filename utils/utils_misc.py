@@ -220,7 +220,7 @@ def plot_results(experiment, model, gen):
                 plt.title(outputs[idx])
                 plt.xticks([])
                 plt.yticks([])
-            experiment.log_figure(figure=plt, figure_name="results_" + str(i), overwrite=True)
+            experiment.log_figure(figure=plt, figure_name="results_" + str(plot_idx), overwrite=True)
             plt.close('all')
     
 def clear_memory():
