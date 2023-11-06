@@ -27,7 +27,7 @@ class ResNet3DModel(BaseModel):
                     "num_filters": {"type": "integer", "min": 4, "max": 64},
                     "depth": {"type": "integer", "min": 2, "max": 4},
                     "dropout_rate": {"type": "float", "min": 0.0, "max": 0.6},
-                    "batch_size": {"type": "discrete", "values": [1, 2, 4, 8]},
+                    "batch_size": {"type": "discrete", "values": [1, 2, 4]},
                 },
                 "trials": 1,
             }
