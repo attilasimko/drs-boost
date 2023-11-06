@@ -30,7 +30,7 @@ class ResNet3DModel(BaseModel):
                     "depth": {"type": "integer", "min": 0, "max": 4},
                     "flat_depth": {"type": "integer", "min": 1, "max": 4},
                     "dropout_rate": {"type": "float", "min": 0.0, "max": 0.6},
-                    "batch_size": 1,
+                    "batch_size": {"type": "discrete", "values": [1, 2, 4]},
                 },
                 "trials": 1,
             }
