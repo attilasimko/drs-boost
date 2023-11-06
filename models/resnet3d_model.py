@@ -78,7 +78,7 @@ class ResNet3DModel(BaseModel):
         x = Flatten()(x)
 
         for i in range(flat_depth):
-            x = Dense(int(np.max([output_channels, (x.shape[-1] / 2)])), activation='relu')(x)
+            x = Dense(int(np.max([output_channels, int(x.shape[-1] / 2)])), activation='relu')(x)
             x = Dropout(dropout_rate)(x)
             
         x = Dense(output_channels, activation="softmax")(x)
