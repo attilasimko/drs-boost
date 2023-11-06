@@ -178,6 +178,14 @@ def plot_results(experiment, model, gen):
                 
                 for i in range(len(pred)):
                     pred[i] = np.expand_dims(pred[i][:, 16, :, :], -1)
+            
+            if (experiment_name == "jocke"):
+                for i in range(len(y)):
+                    y[i] = np.expand_dims(np.expand_dims(y[i], 1), -1)
+                pred = list([pred])
+                for i in range(len(pred)):
+                    pred[i] = np.expand_dims(np.expand_dims(pred[i], -1), 1)
+
                   
             x_num = len(x)
             plt.clf()

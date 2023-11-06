@@ -81,7 +81,7 @@ class ResNet3DModel(BaseModel):
             for i in range(len(generator.outputs)):
                 outputs.append(x[:, i:i+1])
         else:
-            outputs = x
+            outputs.append(x)
 
         model = Model(inputs, outputs)
         return model
