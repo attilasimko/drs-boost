@@ -24,8 +24,10 @@ class ResNet3DModel(BaseModel):
                 "parameters": {
                     "optimizer": {"type": "categorical", "values": ["Adam", "SGD", "RMSprop"]},
                     "learning_rate": {"type": "float", "scalingType": "loguniform", "min": 0.0000001, "max": 0.1},
-                    "num_filters": {"type": "integer", "min": 4, "max": 64},
+                    "num_filters": {"type": "integer", "min": 4, "max": 128},
+                    "kernel_size": {"type": "categorical", "values": [1, 3, 5, 7]},
                     "depth": {"type": "integer", "min": 2, "max": 4},
+                    "flat_depth": {"type": "integer", "min": 2, "max": 4},
                     "dropout_rate": {"type": "float", "min": 0.0, "max": 0.6},
                     "batch_size": 1,
                 },
@@ -58,19 +60,21 @@ class ResNet3DModel(BaseModel):
         
         num_filters = len(generator.outputs) * experiment.get_parameter('num_filters')
         depth = experiment.get_parameter('depth')
+        flat_depth = experiment.get_parameter('flat_depth')
         dropout_rate = experiment.get_parameter('dropout_rate')
+        kernel_size = experiment.get_parameter('kernel_size')
 
         x = tf.expand_dims(x, axis=-1)
-        for _ in range(depth):
-            x = Conv3D(x.shape[-1], kernel_size=(3, 3, 3), padding="same", activation="relu")(x)
+        for i in range(depth):
+            x = Conv3D(int((i + 1) * num_filters), kernel_size=(kernel_size, kernel_size, kernel_size), padding="same", activation="relu")(x)
             x = Dropout(dropout_rate)(x)
             x = MaxPooling3D(pool_size=(2, 2, 2))(x)
         x = Flatten()(x)
 
-        x = Dense(num_filters * 2, activation='relu')(x)
-        x = Dropout(dropout_rate)(x)
-        x = Dense(num_filters, activation='relu')(x)
-        x = Dropout(dropout_rate)(x)
+        for i in range(flat_depth):
+            x = Dense(int(num_filters * flat_depth / (i + 1)), activation='relu')(x)
+            x = Dropout(dropout_rate)(x)
+            
         if (len(generator.outputs) > 1):
             x = Dense(len(generator.outputs), activation="softmax")(x)
         else:
