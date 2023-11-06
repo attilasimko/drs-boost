@@ -26,8 +26,9 @@ class ResNet3DModel(BaseModel):
                     "learning_rate": {"type": "float", "scalingType": "loguniform", "min": 0.0000001, "max": 0.1},
                     "num_filters": {"type": "integer", "min": 4, "max": 128},
                     "kernel_size": {"type": "discrete", "values": [1, 3, 5, 7]},
-                    "depth": {"type": "integer", "min": 2, "max": 4},
-                    "flat_depth": {"type": "integer", "min": 2, "max": 4},
+                    "pool_size": {"type": "discrete", "values": [1, 2]},
+                    "depth": {"type": "integer", "min": 0, "max": 4},
+                    "flat_depth": {"type": "integer", "min": 1, "max": 4},
                     "dropout_rate": {"type": "float", "min": 0.0, "max": 0.6},
                     "batch_size": 1,
                 },
@@ -63,22 +64,24 @@ class ResNet3DModel(BaseModel):
         flat_depth = experiment.get_parameter('flat_depth')
         dropout_rate = experiment.get_parameter('dropout_rate')
         kernel_size = experiment.get_parameter('kernel_size')
+        pool_size = experiment.get_parameter('pool_size')
+        if (len(generator.outputs) > 1):
+            output_channels = len(generator.outputs)
+        else:
+            output_channels = generator.out_dims[0][1]
 
         x = tf.expand_dims(x, axis=-1)
         for i in range(depth):
             x = Conv3D(int((i + 1) * num_filters), kernel_size=(kernel_size, kernel_size, kernel_size), padding="same", activation="relu")(x)
             x = Dropout(dropout_rate)(x)
-            x = MaxPooling3D(pool_size=(2, 2, 2))(x)
+            x = MaxPooling3D(pool_size=(pool_size, pool_size, pool_size))(x)
         x = Flatten()(x)
 
         for i in range(flat_depth):
-            x = Dense(int(num_filters * flat_depth / (i + 1)), activation='relu')(x)
+            x = Dense(int(tf.maximum(output_channels, (x.shape[-1] / 2))), activation='relu')(x)
             x = Dropout(dropout_rate)(x)
             
-        if (len(generator.outputs) > 1):
-            x = Dense(len(generator.outputs), activation="softmax")(x)
-        else:
-            x = Dense(generator.out_dims[0][1], activation="softmax")(x)
+        x = Dense(output_channels, activation="softmax")(x)
 
         outputs = []
         if (len(generator.outputs) > 1):
