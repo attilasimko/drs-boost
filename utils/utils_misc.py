@@ -155,7 +155,7 @@ def plot_results(experiment, model, gen):
     outputs = experiment.get_parameter("outputs").split(',')
     plot_idx = 0
     plot_num = 10
-    for i, data in enumerate(gen):
+    for _, data in enumerate(gen):
         if (plot_idx <= plot_num):
             if (experiment_name == "erik"):
                 if (np.max(data[1][(plot_idx % 2) + 1][0, ]) == 0.0):
