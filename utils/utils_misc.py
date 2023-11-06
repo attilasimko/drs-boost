@@ -263,8 +263,9 @@ def export_weights_to_hero(model, experiment, save_path, name):
 
         stack = tf.stack(model.inputs, -1)
         output = model(tf.split(stack, stack.shape[-1], -1))
-        output_stack = tf.stack(output, -1)
-        export_model = Model(stack, output_stack)
+        if (type(output) == list):
+            output = tf.stack(output, -1)
+        export_model = Model(stack, output)
         full_model = function(lambda x: export_model(x)) 
         full_model = full_model.get_concrete_function(TensorSpec(stack.shape, stack.dtype))
         frozen_func = convert_variables_to_constants_v2(full_model)
