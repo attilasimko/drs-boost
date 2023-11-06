@@ -262,9 +262,11 @@ def export_weights_to_hero(model, experiment, save_path, name):
     try:
 
         stack = tf.stack(model.inputs, -1)
-        output = model(tf.split(stack, stack.shape[-1], -1))
+        output = model(stack)
         if (type(output) == list):
             output = tf.stack(output, -1)
+        while (len(output.shape) < 4):
+            output = tf.expand_dims(output, -1)
         export_model = Model(stack, output)
         full_model = function(lambda x: export_model(x)) 
         full_model = full_model.get_concrete_function(TensorSpec(stack.shape, stack.dtype))
