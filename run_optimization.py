@@ -107,42 +107,44 @@ for model_name in model_array:
         model_class.get_summary(model, experiment)
         model_class.compile_model(model, experiment)
 
-        print("\nTraining...")
-        if (utils_misc.memory_check(experiment, model) == False):
+        try:
+            print("\nTraining...")
+
+            # if (utils_misc.memory_check(experiment, model) == False):
+            #     continue
+            
+            min_loss = np.inf
+            patience = 0
+            epoch = 0
+            while (epoch < num_epochs):
+                train_loss, val_metric = model_class.train(model, experiment, gen_train, gen_val, epoch)
+                gen_train.on_epoch_end()
+                clear_memory()
+                experiment.log_metrics({"training_loss": np.mean(train_loss),
+                                        "val_loss": np.mean(val_metric)}, epoch=epoch)
+                
+                if val_metric < min_loss:
+                    patience = 0
+                    min_loss = val_metric
+                    print(f"New lowest validation score reached: {val_metric}.")
+                else:
+                    patience += 1
+
+                if patience > patience_thr:
+                    print(f"Early stopping of patience ({patience_thr}) reached, training stopped.")
+                    break
+                epoch += 1
+            if (epoch >= num_epochs):
+                print(f"Maximum number of epochs ({num_epochs}) reached, training stopped.")
+
+            # How well did it do?
+            print("Plotting, evaluating, exporting weights...")
+            utils_misc.plot_results(experiment, model, gen_val)
+            utils_misc.evaluate(experiment, model, gen_test, "test")
+            utils_misc.export_weights_to_hero(model, experiment, temp_path, f"{experiment.get_parameter('model')}_{experiment_idx}")
+            experiment_idx += 1
+            experiment.end()
+        except:
             print("Not enough memory to train this model, skipping to next model.")
             val_metric = utils_misc.evaluate(experiment, model, gen_val, "val")
-            experiment.log_metrics({"val_loss": np.mean(val_metric)}, epoch=0)
-            continue
-        
-        min_loss = np.inf
-        patience = 0
-        epoch = 0
-        while (epoch < num_epochs):
-            train_loss, val_metric = model_class.train(model, experiment, gen_train, gen_val, epoch)
-            gen_train.on_epoch_end()
-            clear_memory()
-            experiment.log_metrics({"training_loss": np.mean(train_loss),
-                                    "val_loss": np.mean(val_metric)}, epoch=epoch)
-            
-            if val_metric < min_loss:
-                patience = 0
-                min_loss = val_metric
-                print(f"New lowest validation score reached: {val_metric}.")
-            else:
-                patience += 1
-
-            if patience > patience_thr:
-                print(f"Early stopping of patience ({patience_thr}) reached, training stopped.")
-                break
-            epoch += 1
-        if (epoch >= num_epochs):
-            print(f"Maximum number of epochs ({num_epochs}) reached, training stopped.")
-
-
-        # How well did it do?
-        print("Plotting, evaluating, exporting weights...")
-        utils_misc.plot_results(experiment, model, gen_val)
-        utils_misc.evaluate(experiment, model, gen_test, "test")
-        utils_misc.export_weights_to_hero(model, experiment, temp_path, f"{experiment.get_parameter('model')}_{experiment_idx}")
-        experiment_idx += 1
-        experiment.end()
+            experiment.log_metrics({"val_loss": np.mean(val_metric)}, epoch=-1)
