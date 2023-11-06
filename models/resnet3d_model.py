@@ -24,7 +24,7 @@ class ResNet3DModel(BaseModel):
                 "parameters": {
                     "optimizer": {"type": "categorical", "values": ["Adam", "SGD", "RMSprop"]},
                     "learning_rate": {"type": "float", "scalingType": "loguniform", "min": 0.0000001, "max": 0.1},
-                    "num_filters": {"type": "integer", "min": 1, "max": 16},
+                    "num_filters": {"type": "integer", "min": 1, "max": 4},
                     "kernel_size": {"type": "discrete", "values": [1, 3, 5, 7]},
                     "pool_size": {"type": "discrete", "values": [1, 2]},
                     "depth": {"type": "integer", "min": 0, "max": 4},
