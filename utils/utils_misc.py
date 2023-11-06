@@ -138,6 +138,9 @@ def evaluate(experiment, model, gen, eval_type):
         pred = model.predict_on_batch(x)
         if (experiment.get_parameter("name") == "erik"):
             pred = np.split(pred, 4, -1)
+        if (experiment.get_parameter("name") == "jocke"):
+            pred = [pred]
+            
         for i in range(len(y)):
             for slice in range(y[i].shape[0]):
                 loss_list[i].extend([fn(y[i][slice:slice+1, ], pred[i][slice:slice+1, ])])
