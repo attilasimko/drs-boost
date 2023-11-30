@@ -189,6 +189,15 @@ def plot_results(experiment, model, gen):
                 for i in range(len(pred)):
                     pred[i] = np.expand_dims(np.expand_dims(pred[i], -1), 1)
 
+            if (experiment_name == "jockeVGG"):
+                for i in range(len(x)):
+                    x[i] = np.expand_dims(x[i], (-1))
+                for i in range(len(y)):
+                    y[i] = np.expand_dims(y[i], (1, -1))
+                pred = list([pred])
+                for i in range(len(pred)):
+                    pred[i] = np.expand_dims(pred[i], (-1, 1))
+
                   
             x_num = len(x)
             plt.clf()
@@ -264,12 +273,22 @@ def export_weights_to_hero(model, experiment, save_path, name):
     os.mkdir(save_path + name)
     try:
 
-        stack = tf.stack(model.inputs, -1)
-        output = model(stack)
+        if (experiment.get_parameter("name") == "jockeVGG"):
+            stack = tf.concat(model.inputs, -1)
+            output = model(tf.split(stack, 3, -1))
+        else:
+            stack = tf.stack(model.inputs, -1)
+            output = model(stack)
+
+        if (experiment.get_parameter("name") == "jockeVGG"):
+            output = tf.reduce_sum(output, 1)
+
         if (type(output) == list):
             output = tf.stack(output, -1)
         while (len(output.shape) < 4):
             output = tf.expand_dims(output, -1)
+
+        
         export_model = Model(stack, output)
         full_model = function(lambda x: export_model(x)) 
         full_model = full_model.get_concrete_function(TensorSpec(stack.shape, stack.dtype))
