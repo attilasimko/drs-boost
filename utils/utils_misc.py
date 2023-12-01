@@ -140,6 +140,8 @@ def evaluate(experiment, model, gen, eval_type):
             pred = np.split(pred, 4, -1)
         if (experiment.get_parameter("name") == "jocke"):
             pred = [pred]
+        if (experiment.get_parameter("name") == "jockeVGG"):
+            pred = [pred]
             
         for i in range(len(y)):
             for slice in range(y[i].shape[0]):
@@ -196,7 +198,7 @@ def plot_results(experiment, model, gen):
                     y[i] = np.expand_dims(y[i], (1, -1))
                 pred = list([pred])
                 for i in range(len(pred)):
-                    pred[i] = np.expand_dims(pred[i], (-1, 1))
+                    pred[i] = np.expand_dims(pred[i], (-1, 1, 2))
 
                   
             x_num = len(x)
@@ -279,9 +281,6 @@ def export_weights_to_hero(model, experiment, save_path, name):
         else:
             stack = tf.stack(model.inputs, -1)
             output = model(stack)
-
-        if (experiment.get_parameter("name") == "jockeVGG"):
-            output = tf.reduce_sum(output, 1)
 
         if (type(output) == list):
             output = tf.stack(output, -1)
