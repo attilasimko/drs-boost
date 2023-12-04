@@ -108,34 +108,34 @@ for model_name in model_array:
         model_class.compile_model(model, experiment)
 
         try:
-            print("\nTraining...")
+            # print("\nTraining...")
 
-            # if (utils_misc.memory_check(experiment, model) == False):
-            #     continue
+            # # if (utils_misc.memory_check(experiment, model) == False):
+            # #     continue
             
-            min_loss = np.inf
-            patience = 0
-            epoch = 0
-            while (epoch < num_epochs):
-                train_loss, val_metric = model_class.train(model, experiment, gen_train, gen_val, epoch)
-                gen_train.on_epoch_end()
-                clear_memory()
-                experiment.log_metrics({"training_loss": np.mean(train_loss),
-                                        "val_loss": np.mean(val_metric)}, epoch=epoch)
+            # min_loss = np.inf
+            # patience = 0
+            # epoch = 0
+            # while (epoch < num_epochs):
+            #     train_loss, val_metric = model_class.train(model, experiment, gen_train, gen_val, epoch)
+            #     gen_train.on_epoch_end()
+            #     clear_memory()
+            #     experiment.log_metrics({"training_loss": np.mean(train_loss),
+            #                             "val_loss": np.mean(val_metric)}, epoch=epoch)
                 
-                if val_metric < min_loss:
-                    patience = 0
-                    min_loss = val_metric
-                    print(f"New lowest validation score reached: {val_metric}.")
-                else:
-                    patience += 1
+            #     if val_metric < min_loss:
+            #         patience = 0
+            #         min_loss = val_metric
+            #         print(f"New lowest validation score reached: {val_metric}.")
+            #     else:
+            #         patience += 1
 
-                if patience > patience_thr:
-                    print(f"Early stopping of patience ({patience_thr}) reached, training stopped.")
-                    break
-                epoch += 1
-            if (epoch >= num_epochs):
-                print(f"Maximum number of epochs ({num_epochs}) reached, training stopped.")
+            #     if patience > patience_thr:
+            #         print(f"Early stopping of patience ({patience_thr}) reached, training stopped.")
+            #         break
+            #     epoch += 1
+            # if (epoch >= num_epochs):
+            #     print(f"Maximum number of epochs ({num_epochs}) reached, training stopped.")
 
             # How well did it do?
             print("Plotting, evaluating, exporting weights...")

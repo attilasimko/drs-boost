@@ -51,8 +51,10 @@ class VGG19Model(BaseModel):
         )
         vgg = Model(inputs=[vgg.layers[0].input], outputs = vgg.get_layer("block5_conv4").output)
         x = vgg(x)
-        x = tf.math.square(x)
-        x = tf.reduce_mean(x, (1, 2, 3))
+        x = Flatten()(x)
+        x = Activation("relu")(x)
+        # x = tf.math.square(x)
+        # x = tf.reduce_mean(x, (1, 2, 3))
 
         model = Model(inputs=inputs, outputs=x)
 
