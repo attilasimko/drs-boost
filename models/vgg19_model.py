@@ -42,19 +42,15 @@ class VGG19Model(BaseModel):
         
         vgg = tf.keras.applications.vgg19.VGG19(
             include_top=True,
-            weights='imagenet',
+            weights=None,
             input_tensor=None,
             input_shape=None,
             pooling=None,
-            classes=1000,
-            classifier_activation='softmax'
+            classes=1,
+            classifier_activation='relu'
         )
-        vgg = Model(inputs=[vgg.layers[0].input], outputs = vgg.get_layer("block5_conv4").output)
+        
         x = vgg(x)
-        x = Flatten()(x)
-        x = Activation("relu")(x)
-        # x = tf.math.square(x)
-        # x = tf.reduce_mean(x, (1, 2, 3))
 
         model = Model(inputs=inputs, outputs=x)
 

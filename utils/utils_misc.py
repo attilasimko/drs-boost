@@ -195,10 +195,10 @@ def plot_results(experiment, model, gen):
                 for i in range(len(x)):
                     x[i] = np.expand_dims(x[i], (-1))
                 for i in range(len(y)):
-                    y[i] = np.expand_dims(np.mean(y[i], 2), (1, 2))
+                    y[i] = np.expand_dims(y[i], (1, 2))
                 pred = list([pred])
                 for i in range(len(pred)):
-                    pred[i] = np.expand_dims(np.mean(pred[i], 1), (1, 2, 3))
+                    pred[i] = np.expand_dims(pred[i], (1, 2))
 
                   
             x_num = len(x)
@@ -278,7 +278,7 @@ def export_weights_to_hero(model, experiment, save_path, name):
         if (experiment.get_parameter("name") == "jockeVGG"):
             stack = tf.concat(model.inputs, -1)
             output = model(tf.split(stack, 3, -1))
-            output = tf.reduce_mean(output, -1)
+            # output = tf.reduce_mean(output, -1)
         else:
             stack = tf.stack(model.inputs, -1)
             output = model(stack)
