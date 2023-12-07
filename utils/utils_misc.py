@@ -276,6 +276,7 @@ def export_weights_to_hero(model, experiment, save_path, name):
     try:
 
         if (experiment.get_parameter("name") == "jockeVGG"):
+            model.save_weights(save_path + name + "_weights.h5")
             stack = tf.concat(model.inputs, -1)
             output = model(tf.split(stack, 3, -1))
             # output = tf.reduce_mean(output, -1)
