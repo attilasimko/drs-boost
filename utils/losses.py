@@ -32,8 +32,13 @@ def get_metric(metric_name):
         return mean_error
     if (metric_name == "hamming"):
         return hamming
+    if (metric_name == "accuracy"):
+        return accuracy
     
     return tensorflow.keras.metrics.get(metric_name)
+
+def accuracy(y_true, y_pred):
+    return - tensorflow.keras.metrics.binary_accuracy(y_true, y_pred)
 
 def hamming(y_true, y_pred):
     return - tensorflow.math.reduce_sum(y_true * y_pred)

@@ -145,6 +145,6 @@ for model_name in model_array:
             experiment_idx += 1
             experiment.end()
         except:
-            print("Not enough memory to train this model, skipping to next model.")
+            print("Epoch failed, skipping model.")
             val_metric = utils_misc.evaluate(experiment, model, gen_val, "val")
             experiment.log_metrics({"val_loss": np.mean(val_metric)}, epoch=-1)
