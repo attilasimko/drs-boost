@@ -328,10 +328,9 @@ def prune_config(config, name):
         config["parameters"]["learning_rate"] = {"type": "float", "scalingType": "loguniform", "min": 0.00004, "max": 0.004}
         config["parameters"]["batch_normalization"] = "True"
         print("Parameters pruned: optimizer = Adam, min. learning rate = 0.00004")
-    if (name == "jocke"):
-        config["parameters"]["depth"] = {"type": "integer", "min": 2, "max": 4}
-        config["parameters"]["pool_size"] = 2
-        print("Parameters pruned: depth = 2-4, pool_size = 2")
+    if (name == "jockeVGG"):
+        config["parameters"]["learning_rate"] = {"type": "float", "scalingType": "loguniform", "min": 0.00002, "max": 0.00003}
+        print("Parameters pruned: learning rate 0.00002-0.00003")
 
     return config
 
