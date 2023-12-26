@@ -147,6 +147,9 @@ def evaluate(experiment, model, gen, eval_type):
 
     for i in range(len(y)):
         experiment.log_metrics({f"{eval_type}_loss_{i}": np.nanmean(loss_list[i])})
+    
+    if (eval_type == "test"):
+        print(f"Testing results:\t{np.mean(loss_list)}\t+-\t{np.std(loss_list)}")
 
     return np.mean(loss_list)
 
