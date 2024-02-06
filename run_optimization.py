@@ -82,7 +82,7 @@ if (output_array is None):
 for model_name in model_array:
     model = models.find_model_using_name(model_name)
     config = model.get_config(num_opt, algorithm)
-    config = prune_config(config, name, len(output_array))
+    config = prune_config(config, name, len(output_array.split(',')))
     opt_comet = comet_ml.Optimizer(config)
     experiment_idx = 0
     for experiment in opt_comet.get_experiments(disabled=not(log_comet)):

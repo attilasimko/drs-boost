@@ -22,7 +22,7 @@ def get_loss(loss_name):
         return mime_loss
     if (loss_name == "dsfl"):
         return dsfl
-    if (loss_name == "hausdorff"):
+    if (loss_name == "hausdorff_loss"):
         return hausdorff
     
     return tf.keras.losses.get(loss_name)
