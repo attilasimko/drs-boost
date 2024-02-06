@@ -212,8 +212,8 @@ def hausdorff(y_true, y_pred):
                                                     tf.float32)
     terms_1 = []
     terms_2 = []
-    y_true = tf.squeeze(y_true, axis=-1)
-    y_pred = tf.squeeze(y_pred, axis=-1)
+    y_true = tf.squeeze(y_true)
+    y_pred = tf.squeeze(y_pred)
     for b in range(y_true.shape[0]):
         gt_b = y_true[b]
         prob_map_b = y_pred[b]
