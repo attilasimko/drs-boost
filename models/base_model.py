@@ -96,6 +96,10 @@ class BaseModel(ABC):
         if ((experiment.get_parameter("name") == "erik") & (experiment.get_parameter("loss") == "erik_loss")):
             loss = [loss(1.0), loss(0.0), loss(0.0), loss(0.0)]
 
+        if (experiment.get_parameter("name") == "william"):
+            for i in range(len(model.outputs)):
+                loss_weights[i] = experiment.get_parameter(f"loss_weight_{i}")
+
         print("\nCompiling model...")
         print(f"Learning rate: {experiment.get_parameter('learning_rate')}")
         if (experiment.get_parameter("optimizer") == "Adam"): # "Adam", "SGD", "RMSprop"

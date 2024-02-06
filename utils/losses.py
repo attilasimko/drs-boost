@@ -1,8 +1,10 @@
-import tensorflow
+import tensorflow as tf
 import numpy as np
 from keras import backend as K
 from focal_loss import BinaryFocalLoss
 from scipy import ndimage
+import math
+from sklearn.utils.extmath import cartesian
 K.set_image_data_format('channels_last')  # TF dimension ordering in this code
 
 def get_loss(loss_name):
@@ -20,8 +22,10 @@ def get_loss(loss_name):
         return mime_loss
     if (loss_name == "dsfl"):
         return dsfl
+    if (loss_name == "hausdorff"):
+        return hausdorff
     
-    return tensorflow.keras.losses.get(loss_name)
+    return tf.keras.losses.get(loss_name)
 
 def get_metric(metric_name):
     if (metric_name == "dice_loss"):
@@ -35,13 +39,13 @@ def get_metric(metric_name):
     if (metric_name == "accuracy"):
         return accuracy
     
-    return tensorflow.keras.metrics.get(metric_name)
+    return tf.keras.metrics.get(metric_name)
 
 def accuracy(y_true, y_pred):
-    return - tensorflow.keras.metrics.binary_accuracy(y_true, y_pred)
+    return - tf.keras.metrics.binary_accuracy(y_true, y_pred)
 
 def hamming(y_true, y_pred):
-    return - tensorflow.math.reduce_sum(y_true * y_pred)
+    return - tf.math.reduce_sum(y_true * y_pred)
 
 def dsfl(y_true, y_pred, beta1=0.4, beta2=0.2, beta3=0.4, gamma=2):
     focal_loss = BinaryFocalLoss(gamma)
@@ -52,7 +56,7 @@ def dsfl(y_true, y_pred, beta1=0.4, beta2=0.2, beta3=0.4, gamma=2):
 
 
 def surface_loss(y_true, y_pred):
-    y_true_dist_map = tensorflow.py_function(func=calc_dist_map_batch, inp=[y_true], Tout=tensorflow.float32)
+    y_true_dist_map = tf.py_function(func=calc_dist_map_batch, inp=[y_true], Tout=tf.float32)
     multipled = y_pred * y_true_dist_map
     return K.mean(multipled)
 
@@ -78,20 +82,20 @@ def data_adaptive_loss(y_true, y_pred):
     num_el = K.epsilon()
     y_true = K.cast(y_true, dtype='float32')
     for slc in range(np.shape(y_true)[0]):
-        if (tensorflow.greater(y_true[slc, 0, 0, 0], 0.0)):
+        if (tf.greater(y_true[slc, 0, 0, 0], 0.0)):
             data_adaptive_loss += data_adaptive_class_loss(y_true[slc:slc+1, :, :, 0], y_pred[slc:slc+1, :, :, 0], 1)
             num_el += 1
     return data_adaptive_loss / num_el
 
 def mean_error(y_true, y_pred):
-    return tensorflow.reduce_mean(tensorflow.subtract(y_true, y_pred))
+    return tf.reduce_mean(tf.subtract(y_true, y_pred))
 
 def data_adaptive_dice_metric(y_true, y_pred):
     data_adaptive_l = []
     num_el = K.epsilon()
     y_true = K.cast(y_true, dtype='float32')
     for slc in range(np.shape(y_true)[0]):
-        if (tensorflow.greater(y_true[slc, 0, 0, 0], 0.0)):
+        if (tf.greater(y_true[slc, 0, 0, 0], 0.0)):
             data_adaptive_l.extend([data_adaptive_class_loss(y_true[slc:slc+1, :, :, 0], y_pred[slc:slc+1, :, :, 0], 1)])
             num_el += 1
         else:
@@ -115,7 +119,7 @@ def data_adaptive_binary_crossentropy_part(y_true, y_pred):
     return m
 
 def erik_loss(skip_value):
-    import tensorflow as tf
+    import tf as tf
     def loss_fn(y_true, y_pred):
         loss = 0.0
         for i in range(y_true.shape[0]):
@@ -125,7 +129,7 @@ def erik_loss(skip_value):
     return loss_fn
 
 def mime_loss(y_true, y_pred):
-    import tensorflow as tf
+    import tf as tf
     loss = 0.0
     mask_a = tf.not_equal(y_true, False)
     mask_b = tf.equal(y_true, False)
@@ -140,17 +144,17 @@ def mime_loss(y_true, y_pred):
 def surface_loss_with_mauer(y_true, y_pred):
     mask = y_true[:,0,:,:,:]
     map = y_true[:,1,:,:,:]
-    map = map / tensorflow.reduce_sum(map)
-    merr = tensorflow.abs(mask - y_pred)
-    surface_loss = tensorflow.reduce_sum(merr * map)
+    map = map / tf.reduce_sum(map)
+    merr = tf.abs(mask - y_pred)
+    surface_loss = tf.reduce_sum(merr * map)
     return surface_loss
 
 def generalized_dice_coef_with_mauer(y_true, y_pred):
-    y_true = tensorflow.cast(y_true, dtype='float32')
+    y_true = tf.cast(y_true, dtype='float32')
     smooth = 1e-8
-    w = 1 / (tensorflow.einsum('bhwc->bc', y_true) + 1e-10)**2
-    intersection = w * tensorflow.einsum('bwhc, bwhc->bc', y_true, y_pred)
-    areas = w * ( tensorflow.einsum('bwhc->bc', y_true) + tensorflow.einsum('bwhc->bc', y_pred) )
+    w = 1 / (tf.einsum('bhwc->bc', y_true) + 1e-10)**2
+    intersection = w * tf.einsum('bwhc, bwhc->bc', y_true, y_pred)
+    areas = w * ( tf.einsum('bwhc->bc', y_true) + tf.einsum('bwhc->bc', y_pred) )
     g_dice_coef = (2 * intersection + smooth) / (areas + smooth)
     return g_dice_coef
 
@@ -185,3 +189,54 @@ def dice_loss_with_mauer(y_true, y_pred):
 
 def dice_loss(y_true, y_pred):
     return -dice_coef(y_true, y_pred)
+
+def tf_repeat(tensor, repeats):
+    with tf.variable_scope("repeat"):
+        expanded_tensor = tf.expand_dims(tensor, -1)
+        multiples = [1] + repeats
+        tiled_tensor = tf.tile(expanded_tensor, multiples = multiples)
+        repeated_tesnor = tf.reshape(tiled_tensor, tf.shape(tensor) * repeats)
+    return repeated_tesnor
+
+def hausdorff(y_true, y_pred):
+    # https://github.com/N0vel/weighted-hausdorff-distance-tensorflow-keras-loss/blob/master/weighted_hausdorff_loss.py
+    # https://arxiv.org/pdf/1806.07564.pdf
+    #prob_map_b - y_pred
+    #gt_b - y_true
+
+    resized_height = 256  
+    resized_width  = 256
+    max_dist = math.sqrt(resized_height**2 + resized_width**2)
+    n_pixels = resized_height * resized_width
+    all_img_locations = tf.convert_to_tensor(cartesian([np.arange(resized_height), np.arange(resized_width)]),
+                                                    tf.float32)
+    terms_1 = []
+    terms_2 = []
+    y_true = tf.squeeze(y_true, axis=-1)
+    y_pred = tf.squeeze(y_pred, axis=-1)
+    for b in range(y_true.shape[0]):
+        gt_b = y_true[b]
+        prob_map_b = y_pred[b]
+        # Pairwise distances between all possible locations and the GTed locations
+        n_gt_pts = tf.reduce_sum(gt_b)
+        gt_b = tf.where(tf.cast(gt_b, tf.bool))
+        gt_b = tf.cast(gt_b, tf.float32)
+        d_matrix = tf.sqrt(tf.maximum(tf.reshape(tf.reduce_sum(gt_b*gt_b, axis=1), (-1, 1)) + tf.reduce_sum(all_img_locations*all_img_locations, axis=1)-2*(tf.matmul(gt_b, tf.transpose(all_img_locations))), 0.0))
+        d_matrix = tf.transpose(d_matrix)
+        # Reshape probability map as a long column vector,
+        # and prepare it for multiplication
+        p = tf.reshape(prob_map_b, (n_pixels, 1))
+        n_est_pts = tf.reduce_sum(p)
+        p_replicated = tf_repeat(tf.reshape(p, (-1, 1)), [1, n_gt_pts])
+        eps = 1e-6
+        alpha = 4
+        # Weighted Hausdorff Distance
+        term_1 = (1 / (n_est_pts + eps)) * tf.reduce_sum(p * tf.reshape(tf.reduce_min(d_matrix, axis=1), (-1, 1)))
+        d_div_p = tf.reduce_min((d_matrix + eps) / (p_replicated**alpha + eps / max_dist), axis=0)
+        d_div_p = tf.clip_by_value(d_div_p, 0, max_dist)
+        term_2 = tf.reduce_mean(d_div_p, axis=0)
+        terms_1.append(term_1)
+        terms_2.append(term_2)
+    terms_1 = tf.stack(terms_1)
+    terms_2 = tf.stack(terms_2)
+    return terms_1 + terms_2

@@ -320,17 +320,19 @@ class Timer:
         self._start_time = current_time
         return elapsed_time
     
-def prune_config(config, name):
+def prune_config(config, name, len_outputs):
     if (name == "gerd"):
         config["parameters"]["num_filters"] = 8
         config["parameters"]["optimizer"] = "Adam"
         config["parameters"]["batch_size"] = 8
         print("Parameters pruned: num_filters = 8, optimizer = Adam, batch_size = 8")
     if (name == "william"):
+        for i in range(len_outputs):
+            config["parameters"][f"loss_weight_{i}"] = {"type": "float", "scalingType": "linear", "min": 0.0, "max": 100.0}
         config["parameters"]["optimizer"] = "Adam"
         config["parameters"]["learning_rate"] = {"type": "float", "scalingType": "loguniform", "min": 0.00004, "max": 0.004}
         config["parameters"]["batch_normalization"] = "True"
-        print("Parameters pruned: optimizer = Adam, min. learning rate = 0.00004")
+        print("Parameters pruned: optimizer = Adam, min. learning rate = 0.00004, adjusted weights.")
     if (name == "jockeVGG"):
         config["parameters"]["learning_rate"] = {"type": "float", "scalingType": "loguniform", "min": 0.00002, "max": 0.00003}
         print("Parameters pruned: learning rate 0.00002-0.00003")
