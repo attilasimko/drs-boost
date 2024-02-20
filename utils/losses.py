@@ -86,10 +86,14 @@ def gsl(n_epochs, epoch):
 
     def loss_fn(y_true, y_pred):
         y_true = tf.cast(y_true, tf.float32)
+
         loss_gsl = tf.Variable(initial_value=0.0, dtype=tf.float32)
         for idx in range(y_true.shape[0]):
             region_loss = diceCEloss(y_true[idx, ...], y_pred[idx, ...])
-            dtm = calc_dist_map(y_true[idx, ...])
+
+            with tf.compat.v1.Session() as sess:
+                y_true_np = sess.run(y_true[idx, ...])
+            dtm = calc_dist_map(y_true_np)
 
             class_weight = tf.reduce_sum(y_true[idx, ...])
             class_weight = 1. / (tf.square(class_weight) + 1.)
