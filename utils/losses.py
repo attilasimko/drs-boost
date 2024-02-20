@@ -101,7 +101,7 @@ def gsl(n_epochs, epoch):
     # Compute region based loss
     smooth = 1e-6
 
-    def loss_fn(self, y_true, y_pred):
+    def loss_fn(y_true, y_pred):
         loss = 0.0
         for idx in range(y_true.shape[0]):
             region_loss = diceCEloss(y_true[idx, ...], y_pred[idx, ...])
