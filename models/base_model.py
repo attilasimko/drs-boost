@@ -85,6 +85,7 @@ class BaseModel(ABC):
 
     def compile_model(model, experiment, epoch):
         import numpy as np
+        from tensorflow import config
         from tensorflow.keras.optimizers import Adam, SGD, RMSprop
         from utils.losses import get_loss, get_metric
         loss = get_loss(experiment.get_parameter("loss"))
@@ -98,6 +99,7 @@ class BaseModel(ABC):
             loss = [loss(1.0), loss(0.0), loss(0.0), loss(0.0)]
 
         if ((experiment.get_parameter("loss") == "gsl")):
+            config.run_functions_eagerly(True)
             loss = loss(int(experiment.get_parameter("epochs")), epoch)
 
         if (epoch == 0):
