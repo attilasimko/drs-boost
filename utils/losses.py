@@ -85,6 +85,7 @@ def gsl(n_epochs, epoch):
     smooth = 1e-6
 
     def loss_fn(y_true, y_pred):
+        y_true = tf.cast(y_true, tf.float32)
         loss_gsl = tf.Variable(initial_value=0.0, dtype=tf.float32)
         for idx in range(y_true.shape[0]):
             region_loss = diceCEloss(y_true[idx, ...], y_pred[idx, ...])
