@@ -87,7 +87,7 @@ def gsl(n_epochs, epoch):
     def loss_fn(y_true, y_pred):
         y_true = tf.cast(y_true, tf.float32)
 
-        loss_gsl = tf.Variable(initial_value=0.0, dtype=tf.float32)
+        loss_gsl = 0.0
         for idx in range(y_true.shape[0]):
             region_loss = diceCEloss(y_true[idx, ...], y_pred[idx, ...])
 
@@ -111,7 +111,7 @@ def gsl(n_epochs, epoch):
             boundary_loss = tf.reduce_mean(boundary_loss)
             boundary_loss = 1. - boundary_loss
             
-            loss_gsl.assign_add(alpha(epoch) * region_loss + (1. - alpha(epoch)) * boundary_loss)
+            loss_gsl += alpha(epoch) * region_loss + (1. - alpha(epoch)) * boundary_loss
         return loss_gsl
     return loss_fn
 
