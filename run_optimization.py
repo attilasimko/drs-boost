@@ -144,7 +144,8 @@ for model_name in model_array:
             utils_misc.export_weights_to_hero(model, experiment, temp_path, f"{experiment.get_parameter('model')}_{experiment_idx}")
             experiment_idx += 1
             experiment.end()
-        except:
+        except Exception as e:
             print("Epoch failed, skipping model.")
+            print(e)
             val_metric = utils_misc.evaluate(experiment, model, gen_val, "val")
             experiment.log_metrics({"val_loss": np.mean(val_metric)}, epoch=-1)
