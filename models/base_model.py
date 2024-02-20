@@ -98,12 +98,12 @@ class BaseModel(ABC):
             loss = [loss(1.0), loss(0.0), loss(0.0), loss(0.0)]
 
         if ((experiment.get_parameter("loss") == "gsl")):
-            loss = loss(epoch)
+            loss = loss(int(experiment.get_parameter("epochs")), epoch)
 
         if (epoch == 0):
             print("\nCompiling model...")
             print(f"Learning rate: {experiment.get_parameter('learning_rate')}")
-            print(f"Optimizer: {experiment.get_parameter("optimizer")}")
+            print(f"Optimizer: {experiment.get_parameter('optimizer')}")
         if (experiment.get_parameter("optimizer") == "Adam"): # "Adam", "SGD", "RMSprop"
             model.compile(optimizer=Adam(experiment.get_parameter("learning_rate")), loss=loss, loss_weights=loss_weights)
         elif (experiment.get_parameter("optimizer") == "SGD"):

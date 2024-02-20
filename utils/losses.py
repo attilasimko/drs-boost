@@ -5,6 +5,7 @@ from focal_loss import BinaryFocalLoss
 from scipy import ndimage
 import math
 from sklearn.utils.extmath import cartesian
+
 K.set_image_data_format('channels_last')  # TF dimension ordering in this code
 
 def get_loss(loss_name):
@@ -93,34 +94,36 @@ class LinearSchedule:
         else:
             return 1.0
         
-class gsl:
-    def __init__(self, n_epochs, epoch):
-        self.epoch = epoch
-        self.n_epochs = n_epochs
-        self.alpha = LinearSchedule(n_epochs, 5)
-        # Compute region based loss
-        self.smooth = 1e-6
+def gsl(n_epochs, epoch):
+    epoch = epoch
+    n_epochs = n_epochs
+    alpha = LinearSchedule(n_epochs, 5)
+    # Compute region based loss
+    smooth = 1e-6
 
     def loss_fn(self, y_true, y_pred):
-        region_loss = diceCEloss(y_true, y_pred)
+        loss = 0.0
+        for idx in range(y_true.shape[0]):
+            region_loss = diceCEloss(y_true[idx, ...], y_pred[idx, ...])
+            dtm = ndimage.distance_transform_edt(y_true[idx, ...])
 
-        class_weight = tf.reduce_sum(y_true, axis=[1, 2, 3])
-        class_weight = 1. / (tf.square(class_weight) + 1.)
+            class_weight = tf.reduce_sum(y_true[idx, ...])
+            class_weight = 1. / (tf.square(class_weight) + 1.)
 
-        y_worst = tf.square(1.0 - y_true)
+            y_worst = tf.square(1.0 - y_true[idx, ...])
 
-        num = tf.reduce_sum(tf.square(dtm * (y_worst - y_pred)), axis=[1, 2, 3])
-        num *= class_weight
+            num = tf.reduce_sum(tf.square(dtm * (y_worst - y_pred[idx, ...])))
+            num *= class_weight
 
-        den = tf.reduce_sum(tf.square(dtm * (y_worst - y_true)), axis=[1, 2, 3])
-        den *= class_weight
-        den += self.smooth
+            den = tf.reduce_sum(tf.square(dtm * (y_worst - y_true[idx, ...])))
+            den *= class_weight
+            den += smooth
 
-        boundary_loss = tf.reduce_sum(num, axis=1) / tf.reduce_sum(den, axis=1)
-        boundary_loss = tf.reduce_mean(boundary_loss)
-        boundary_loss = 1. - boundary_loss
-
-        return self.alpha * region_loss + (1. - self.alpha(self.epoch)) * boundary_loss
+            boundary_loss = tf.reduce_sum(num) / tf.reduce_sum(den, axis=1)
+            boundary_loss = tf.reduce_mean(boundary_loss)
+            boundary_loss = 1. - boundary_loss
+            loss += alpha(epoch) * region_loss + (1. - alpha(epoch)) * boundary_loss
+        return loss
     return loss_fn
 
 def surface_loss(y_true, y_pred):
