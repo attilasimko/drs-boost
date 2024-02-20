@@ -22,14 +22,14 @@ def get_loss(loss_name):
         return mime_loss
     if (loss_name == "dsfl"):
         return dsfl
-    if (loss_name == "hausdorff_loss"):
-        return hausdorff
+    if (loss_name == "gsl"):
+        return gsl
     
     return tf.keras.losses.get(loss_name)
 
 def get_metric(metric_name):
-    if (metric_name == "dice_loss"):
-        return dice_loss
+    if (metric_name == "dice_score"):
+        return dice_score
     if (metric_name == "data_adaptive_dice_metric"):
         return data_adaptive_dice_metric
     if (metric_name == "mean_error"):
@@ -54,6 +54,74 @@ def dsfl(y_true, y_pred, beta1=0.4, beta2=0.2, beta3=0.4, gamma=2):
     focal_l_2 = focal_loss(y_true, y_pred)
     return beta1 * dice_squared_l + beta2 * surface_l + beta3 * focal_l_2
 
+
+def diceCEloss(y_true, y_pred):
+    loss_ce = tf.keras.losses.binary_crossentropy(y_true, y_pred)
+    loss_dice = dice_loss(y_true, y_pred)
+
+    return loss_ce + loss_dice
+
+class AlphaSchedule:
+    def __init__(self, n_epochs, schedule, **kwargs):
+        self.schedule = schedule
+        self.linear = LinearSchedule(n_epochs, init_pause=kwargs["init_pause"])
+        self.step = StepSchedule(n_epochs - kwargs["step_length"], step_length=kwargs["step_length"])
+        self.cosine = CosineSchedule(n_epochs)
+
+    def __call__(self, epoch):
+        if self.schedule == "linear":
+            return self.linear(epoch)
+        elif self.schedule == "step":
+            return self.step(epoch)
+        elif self.schedule == "cosine":
+            return self.cosine(epoch).astype('float32')
+        else:
+            raise ValueError("Enter valid schedule type")
+        
+class LinearSchedule:
+    def __init__(self, num_epochs, init_pause):
+        if num_epochs <= init_pause:
+            raise ValueError("The number of epochs must be greater than the initial pause.")
+        self.num_epochs = num_epochs - 1
+        self.init_pause = init_pause
+
+    def __call__(self, epoch):
+        if epoch > self.num_epochs:
+            raise ValueError("The current epoch is greater than the total number of epochs.")
+        if epoch > self.init_pause:
+            return min(1, max(0, 1.0 - (float(epoch - self.init_pause) / (self.num_epochs - self.init_pause))))
+        else:
+            return 1.0
+        
+class gsl:
+    def __init__(self, n_epochs, epoch):
+        self.epoch = epoch
+        self.n_epochs = n_epochs
+        self.alpha = LinearSchedule(n_epochs, 5)
+        # Compute region based loss
+        self.smooth = 1e-6
+
+    def loss_fn(self, y_true, y_pred):
+        region_loss = diceCEloss(y_true, y_pred)
+
+        class_weight = tf.reduce_sum(y_true, axis=[1, 2, 3])
+        class_weight = 1. / (tf.square(class_weight) + 1.)
+
+        y_worst = tf.square(1.0 - y_true)
+
+        num = tf.reduce_sum(tf.square(dtm * (y_worst - y_pred)), axis=[1, 2, 3])
+        num *= class_weight
+
+        den = tf.reduce_sum(tf.square(dtm * (y_worst - y_true)), axis=[1, 2, 3])
+        den *= class_weight
+        den += self.smooth
+
+        boundary_loss = tf.reduce_sum(num, axis=1) / tf.reduce_sum(den, axis=1)
+        boundary_loss = tf.reduce_mean(boundary_loss)
+        boundary_loss = 1. - boundary_loss
+
+        return self.alpha * region_loss + (1. - self.alpha(self.epoch)) * boundary_loss
+    return loss_fn
 
 def surface_loss(y_true, y_pred):
     y_true_dist_map = tf.py_function(func=calc_dist_map_batch, inp=[y_true], Tout=tf.float32)
@@ -119,7 +187,6 @@ def data_adaptive_binary_crossentropy_part(y_true, y_pred):
     return m
 
 def erik_loss(skip_value):
-    import tf as tf
     def loss_fn(y_true, y_pred):
         loss = 0.0
         for i in range(y_true.shape[0]):
@@ -129,7 +196,6 @@ def erik_loss(skip_value):
     return loss_fn
 
 def mime_loss(y_true, y_pred):
-    import tf as tf
     loss = 0.0
     mask_a = tf.not_equal(y_true, False)
     mask_b = tf.equal(y_true, False)
@@ -190,6 +256,9 @@ def dice_loss_with_mauer(y_true, y_pred):
 def dice_loss(y_true, y_pred):
     return -dice_coef(y_true, y_pred)
 
+def dice_score(y_true, y_pred):
+    return -100 * dice_coef(y_true, y_pred)
+
 def tf_repeat(tensor, repeats):
     with tf.variable_scope("repeat"):
         expanded_tensor = tf.expand_dims(tensor, -1)
@@ -197,46 +266,3 @@ def tf_repeat(tensor, repeats):
         tiled_tensor = tf.tile(expanded_tensor, multiples = multiples)
         repeated_tesnor = tf.reshape(tiled_tensor, tf.shape(tensor) * repeats)
     return repeated_tesnor
-
-def hausdorff(y_true, y_pred):
-    # https://github.com/N0vel/weighted-hausdorff-distance-tensorflow-keras-loss/blob/master/weighted_hausdorff_loss.py
-    # https://arxiv.org/pdf/1806.07564.pdf
-    #prob_map_b - y_pred
-    #gt_b - y_true
-
-    resized_height = 256  
-    resized_width  = 256
-    max_dist = math.sqrt(resized_height**2 + resized_width**2)
-    n_pixels = resized_height * resized_width
-    all_img_locations = tf.convert_to_tensor(cartesian([np.arange(resized_height), np.arange(resized_width)]),
-                                                    tf.float32)
-    terms_1 = []
-    terms_2 = []
-    y_true = tf.squeeze(y_true)
-    y_pred = tf.squeeze(y_pred)
-    for b in range(y_true.shape[0]):
-        gt_b = y_true[b]
-        prob_map_b = y_pred[b]
-        # Pairwise distances between all possible locations and the GTed locations
-        n_gt_pts = tf.reduce_sum(gt_b)
-        gt_b = tf.where(tf.cast(gt_b, tf.bool))
-        gt_b = tf.cast(gt_b, tf.float32)
-        d_matrix = tf.sqrt(tf.maximum(tf.reshape(tf.reduce_sum(gt_b*gt_b, axis=1), (-1, 1)) + tf.reduce_sum(all_img_locations*all_img_locations, axis=1)-2*(tf.matmul(gt_b, tf.transpose(all_img_locations))), 0.0))
-        d_matrix = tf.transpose(d_matrix)
-        # Reshape probability map as a long column vector,
-        # and prepare it for multiplication
-        p = tf.reshape(prob_map_b, (n_pixels, 1))
-        n_est_pts = tf.reduce_sum(p)
-        p_replicated = tf_repeat(tf.reshape(p, (-1, 1)), [1, n_gt_pts])
-        eps = 1e-6
-        alpha = 4
-        # Weighted Hausdorff Distance
-        term_1 = (1 / (n_est_pts + eps)) * tf.reduce_sum(p * tf.reshape(tf.reduce_min(d_matrix, axis=1), (-1, 1)))
-        d_div_p = tf.reduce_min((d_matrix + eps) / (p_replicated**alpha + eps / max_dist), axis=0)
-        d_div_p = tf.clip_by_value(d_div_p, 0, max_dist)
-        term_2 = tf.reduce_mean(d_div_p, axis=0)
-        terms_1.append(term_1)
-        terms_2.append(term_2)
-    terms_1 = tf.stack(terms_1)
-    terms_2 = tf.stack(terms_2)
-    return terms_1 + terms_2

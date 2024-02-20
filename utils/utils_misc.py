@@ -327,11 +327,6 @@ def prune_config(config, name, len_outputs):
         config["parameters"]["batch_size"] = 8
         print("Parameters pruned: num_filters = 8, optimizer = Adam, batch_size = 8")
     if (name == "william"):
-        for i in range(len_outputs):
-            # if (i == 5):
-            config["parameters"][f"loss_weight_{i}"] = {"type": "float", "scalingType": "linear", "min": 0.0, "max": 100.0}
-            # else:
-            #     config["parameters"][f"loss_weight_{i}"] = 1.0
         config["parameters"]["optimizer"] = "Adam"
         config["parameters"]["learning_rate"] = {"type": "float", "scalingType": "loguniform", "min": 0.00004, "max": 0.004}
         config["parameters"]["batch_normalization"] = "True"

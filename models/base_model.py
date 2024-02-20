@@ -83,33 +83,32 @@ class BaseModel(ABC):
         experiment.log_parameter("num_parameters", num_parameters)
 
 
-    def compile_model(model, experiment):
+    def compile_model(model, experiment, epoch):
         import numpy as np
         from tensorflow.keras.optimizers import Adam, SGD, RMSprop
         from utils.losses import get_loss, get_metric
         loss = get_loss(experiment.get_parameter("loss"))
         metric = get_metric(experiment.get_parameter("metric"))
-        print(f"Training loss: {loss.__name__}")
-        print(f"Validation metric: {metric.__name__}")
+        if (epoch == 0):
+            print(f"Training loss: {loss.__name__}")
+            print(f"Validation metric: {metric.__name__}")
 
         loss_weights = list(np.ones(len(model.outputs)))
         if ((experiment.get_parameter("name") == "erik") & (experiment.get_parameter("loss") == "erik_loss")):
             loss = [loss(1.0), loss(0.0), loss(0.0), loss(0.0)]
 
-        if (experiment.get_parameter("name") == "william"):
-            for i in range(len(model.outputs)):
-                loss_weights[i] = experiment.get_parameter(f"loss_weight_{i}")
+        if ((experiment.get_parameter("loss") == "gsl")):
+            loss = loss(epoch)
 
-        print("\nCompiling model...")
-        print(f"Learning rate: {experiment.get_parameter('learning_rate')}")
+        if (epoch == 0):
+            print("\nCompiling model...")
+            print(f"Learning rate: {experiment.get_parameter('learning_rate')}")
+            print(f"Optimizer: {experiment.get_parameter("optimizer")}")
         if (experiment.get_parameter("optimizer") == "Adam"): # "Adam", "SGD", "RMSprop"
-            print("Optimizer: Adam")
             model.compile(optimizer=Adam(experiment.get_parameter("learning_rate")), loss=loss, loss_weights=loss_weights)
         elif (experiment.get_parameter("optimizer") == "SGD"):
-            print("Optimizer: SGD")
             model.compile(optimizer=SGD(experiment.get_parameter("learning_rate")), loss=loss, loss_weights=loss_weights)
         elif (experiment.get_parameter("optimizer") == "RMSprop"):
-            print("Optimizer: RMSprop")
             model.compile(optimizer=RMSprop(experiment.get_parameter("learning_rate")), loss=loss, loss_weights=loss_weights)
 
 

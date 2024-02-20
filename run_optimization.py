@@ -105,7 +105,6 @@ for model_name in model_array:
         model = model_class.build(experiment, gen_train)
         
         model_class.get_summary(model, experiment)
-        model_class.compile_model(model, experiment)
 
         try:
             print("\nTraining...")
@@ -117,6 +116,7 @@ for model_name in model_array:
             patience = 0
             epoch = 0
             while (epoch < num_epochs):
+                model_class.compile_model(model, experiment, epoch)
                 train_loss, val_metric = model_class.train(model, experiment, gen_train, gen_val, epoch)
                 gen_train.on_epoch_end()
                 clear_memory()
