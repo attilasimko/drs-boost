@@ -57,28 +57,11 @@ def dsfl(y_true, y_pred, beta1=0.4, beta2=0.2, beta3=0.4, gamma=2):
 
 
 def diceCEloss(y_true, y_pred):
-    loss_ce = tf.keras.losses.binary_crossentropy(y_true, y_pred)
+    loss_ce = K.mean(K.binary_crossentropy(y_true, y_pred))
     loss_dice = dice_loss(y_true, y_pred)
 
     return loss_ce + loss_dice
 
-class AlphaSchedule:
-    def __init__(self, n_epochs, schedule, **kwargs):
-        self.schedule = schedule
-        self.linear = LinearSchedule(n_epochs, init_pause=kwargs["init_pause"])
-        self.step = StepSchedule(n_epochs - kwargs["step_length"], step_length=kwargs["step_length"])
-        self.cosine = CosineSchedule(n_epochs)
-
-    def __call__(self, epoch):
-        if self.schedule == "linear":
-            return self.linear(epoch)
-        elif self.schedule == "step":
-            return self.step(epoch)
-        elif self.schedule == "cosine":
-            return self.cosine(epoch).astype('float32')
-        else:
-            raise ValueError("Enter valid schedule type")
-        
 class LinearSchedule:
     def __init__(self, num_epochs, init_pause):
         if num_epochs <= init_pause:
@@ -102,10 +85,10 @@ def gsl(n_epochs, epoch):
     smooth = 1e-6
 
     def loss_fn(y_true, y_pred):
-        loss = 0.0
+        loss_gsl = tf.Variable(initial_value=0.0, dtype=tf.float32)
         for idx in range(y_true.shape[0]):
             region_loss = diceCEloss(y_true[idx, ...], y_pred[idx, ...])
-            dtm = ndimage.distance_transform_edt(y_true[idx, ...])
+            dtm = calc_dist_map(y_true[idx, ...])
 
             class_weight = tf.reduce_sum(y_true[idx, ...])
             class_weight = 1. / (tf.square(class_weight) + 1.)
@@ -119,11 +102,12 @@ def gsl(n_epochs, epoch):
             den *= class_weight
             den += smooth
 
-            boundary_loss = tf.reduce_sum(num) / tf.reduce_sum(den, axis=1)
+            boundary_loss = tf.reduce_sum(num) / tf.reduce_sum(den)
             boundary_loss = tf.reduce_mean(boundary_loss)
             boundary_loss = 1. - boundary_loss
-            loss += alpha(epoch) * region_loss + (1. - alpha(epoch)) * boundary_loss
-        return loss
+            
+            loss_gsl.assign_add(alpha(epoch) * region_loss + (1. - alpha(epoch)) * boundary_loss)
+        return loss_gsl
     return loss_fn
 
 def surface_loss(y_true, y_pred):
@@ -138,7 +122,7 @@ def calc_dist_map_batch(y_true):
 
 def calc_dist_map(seg):
     res = np.zeros_like(seg)
-    posmask = seg.astype(np.bool)
+    posmask = np.array(seg > 0.5, dtype=np.bool_)
     if posmask.any():
         negmask = ~posmask
         neg_dist = ndimage.distance_transform_edt(negmask) * negmask
