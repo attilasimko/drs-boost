@@ -249,7 +249,7 @@ def dice_loss(y_true, y_pred):
     return -dice_coef(y_true, y_pred)
 
 def dice_score(y_true, y_pred):
-    return -100 * dice_coef(y_true, y_pred)
+    return -dice_coef(y_true, y_pred)
 
 def tf_repeat(tensor, repeats):
     with tf.variable_scope("repeat"):
