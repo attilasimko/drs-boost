@@ -337,7 +337,8 @@ def prune_config(config, name, len_outputs):
     if (name == "jocke"):
         config["parameters"]["kernel_size"] = {"type": "discrete", "values": [1, 3]}
         config["parameters"]["depth"] = {"type": "integer", "min": 0, "max": 2}
-        print("Parameters pruned: kernel size 1-3, depth 0-2")
+        config["parameters"]["batch_size"] = {"type": "discrete", "values": [1, 2]}
+        print("Parameters pruned: kernel_size = 1,3, depth = 0,2, batch_size = 1,2")
 
     return config
 
