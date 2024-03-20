@@ -335,10 +335,11 @@ def prune_config(config, name, len_outputs):
         config["parameters"]["learning_rate"] = {"type": "float", "scalingType": "loguniform", "min": 0.00002, "max": 0.00003}
         print("Parameters pruned: learning rate 0.00002-0.00003")
     if (name == "jocke"):
-        config["parameters"]["kernel_size"] = {"type": "discrete", "values": [1, 3]}
-        config["parameters"]["depth"] = {"type": "integer", "min": 0, "max": 2}
+        config["parameters"]["kernel_size"] = 7
+        config["parameters"]["depth"] = 3
+        config["parameters"]["flat_depth"] = 3
         config["parameters"]["batch_size"] = {"type": "discrete", "values": [1, 2]}
-        print("Parameters pruned: kernel_size = 1,3, depth = 0,2, batch_size = 1,2")
+        print("Parameters pruned: kernel_size = 1,3, depth = 4, batch_size = 1,2")
 
     return config
 
