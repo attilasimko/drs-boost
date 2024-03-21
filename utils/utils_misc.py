@@ -339,6 +339,7 @@ def prune_config(config, name, len_outputs):
         config["parameters"]["depth"] = 3
         config["parameters"]["flat_depth"] = 3
         config["parameters"]["pool_size"] = 2
+        config["parameters"]["num_filters"] = 1
         config["parameters"]["batch_size"] = {"type": "discrete", "values": [1, 2]}
         print("Parameters pruned: kernel_size = 7, depth = 3, flat_depth = 3, pool_size = 2, batch_size = 1,2")
 
